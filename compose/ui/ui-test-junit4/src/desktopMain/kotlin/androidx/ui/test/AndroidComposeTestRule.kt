@@ -14,22 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test
+package androidx.ui.test
 
-import androidx.compose.ui.semantics.SemanticsNode
-import androidx.compose.ui.text.input.EditOperation
-import androidx.compose.ui.text.input.ImeAction
-
-internal actual fun SemanticsNodeInteraction.actualPerformImeAction(
-    node: SemanticsNode,
-    actionSpecified: ImeAction
-) {
-    TODO()
-}
-
-internal actual fun SemanticsNodeInteraction.actualSendTextInputCommand(
-    node: SemanticsNode,
-    command: List<EditOperation>
-) {
-    TODO()
-}
+/** @Deprecated Moved to androidx.compose.ui.test */
+actual fun createComposeRule() = androidx.compose.ui.test.junit4.createComposeRule()

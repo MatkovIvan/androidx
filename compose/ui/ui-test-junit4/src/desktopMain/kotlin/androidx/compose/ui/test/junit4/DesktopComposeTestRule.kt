@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test
+package androidx.compose.ui.test.junit4
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ExperimentalComposeApi
@@ -23,8 +23,20 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.DesktopOwner
 import androidx.compose.ui.platform.DesktopOwners
 import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.test.ExperimentalTesting
+import androidx.compose.ui.test.TestOwner
+import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.SemanticsNodeInteractionCollection
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.InternalTestingApi
+import androidx.compose.ui.test.createTestContext
+import androidx.compose.ui.test.initCompose
+import androidx.compose.ui.text.input.EditOperation
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.node.Owner
 import kotlinx.coroutines.delay
 import org.jetbrains.skija.Surface
 import org.junit.runner.Description
@@ -34,9 +46,10 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.FutureTask
 import javax.swing.SwingUtilities.invokeAndWait
 
-actual fun createComposeRule(): ComposeTestRuleJUnit = DesktopComposeTestRule()
+actual fun createComposeRule(): ComposeTestRule = DesktopComposeTestRule()
 
-class DesktopComposeTestRule : ComposeTestRuleJUnit {
+@OptIn(InternalTestingApi::class)
+class DesktopComposeTestRule : ComposeTestRule {
 
     companion object {
         init {
@@ -57,6 +70,9 @@ class DesktopComposeTestRule : ComposeTestRuleJUnit {
     override val displaySize: IntSize get() = IntSize(1024, 768)
 
     val executionQueue = LinkedList<() -> Unit>()
+
+    private val testOwner = DesktopTestOwner(this)
+    private val testContext = createTestContext(testOwner)
 
     override fun apply(base: Statement, description: Description?): Statement {
         current = this
@@ -130,5 +146,37 @@ class DesktopComposeTestRule : ComposeTestRuleJUnit {
         owner.measureAndLayout()
         owner.draw(canvas)
         this.owner = owner
+    }
+
+    override fun onNode(
+        matcher: SemanticsMatcher,
+        useUnmergedTree: Boolean
+    ): SemanticsNodeInteraction {
+        return SemanticsNodeInteraction(testContext, useUnmergedTree, matcher)
+    }
+
+    override fun onAllNodes(
+        matcher: SemanticsMatcher,
+        useUnmergedTree: Boolean
+    ): SemanticsNodeInteractionCollection {
+        return SemanticsNodeInteractionCollection(testContext, useUnmergedTree, matcher)
+    }
+
+    private class DesktopTestOwner(val rule: DesktopComposeTestRule) : TestOwner {
+        override fun sendTextInputCommand(node: SemanticsNode, command: List<EditOperation>) {
+            TODO()
+        }
+
+        override fun sendImeAction(node: SemanticsNode, actionSpecified: ImeAction) {
+            TODO()
+        }
+
+        override fun <T> runOnUiThread(action: () -> T): T {
+            return rule.runOnUiThread(action)
+        }
+
+        override fun getOwners(): Set<Owner> {
+            return rule.owners!!.list
+        }
     }
 }

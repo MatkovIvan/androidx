@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.compose.ui.test
+package androidx.compose.ui.test.junit4
 
+import androidx.compose.ui.test.initCompose
 import org.jetbrains.skija.Surface
-import org.jetbrains.skiko.Library
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -162,17 +162,6 @@ fun DesktopScreenshotTestRule(
     repoGoldenPath: String = "platform/frameworks/support-golden"
 ): ScreenshotTestRule {
     return ScreenshotTestRule(GoldenConfig(fsGoldenPath, repoGoldenPath, modulePath))
-}
-
-fun initCompose() {
-    ComposeInit
-}
-
-private object ComposeInit {
-    init {
-        Library.load("/", "skiko")
-        System.getProperties().setProperty("kotlinx.coroutines.fast.service.loader", "false")
-    }
 }
 
 class ScreenshotTestRule internal constructor(val config: GoldenConfig) : TestRule {

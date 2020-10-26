@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.compose.ui.test
 
-import androidx.compose.ui.semantics.SemanticsNode
-import androidx.compose.ui.semantics.getAllSemanticsNodes
+import org.jetbrains.skiko.Library
 
-internal actual fun getAllSemanticsNodes(mergingEnabled: Boolean): List<SemanticsNode> {
-    return DesktopComposeTestRule.current!!.owners!!.list.flatMap {
-        it.semanticsOwner.getAllSemanticsNodes(mergingEnabled)
+fun initCompose() {
+    ComposeInit
+}
+
+private object ComposeInit {
+    init {
+        Library.load("/", "skiko")
+        System.getProperties().setProperty("kotlinx.coroutines.fast.service.loader", "false")
     }
 }

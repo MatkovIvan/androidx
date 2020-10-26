@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test
+package androidx.compose.ui.test.junit4
 
 import androidx.compose.animation.core.AnimationClockObserver
 import androidx.compose.animation.core.InternalAnimationApi
+import androidx.compose.ui.test.TestAnimationClock
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
