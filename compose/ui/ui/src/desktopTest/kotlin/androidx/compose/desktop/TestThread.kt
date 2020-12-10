@@ -13,17 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.compose.ui.test
 
-import org.jetbrains.skiko.Library
+package androidx.compose.desktop
 
-fun initCompose() {
-    ComposeInit
-}
+internal class TestThread(private val _run: () -> Unit) : Thread() {
+    private var exception: Exception? = null
 
-private object ComposeInit {
-    init {
-        Library.load("/", "skiko")
-        System.getProperties().setProperty("kotlinx.coroutines.fast.service.loader", "false")
+    override fun run() {
+        try {
+            _run()
+        } catch (e: InterruptedException) {
+            // ignore
+        } catch (e: Exception) {
+            exception = e
+        }
+    }
+
+    fun joinAndThrow() {
+        join()
+        if (exception != null) {
+            throw exception!!
+        }
     }
 }
