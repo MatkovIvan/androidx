@@ -14,24 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.input.pointer
+package androidx.compose.desktop.examples.popupexample
 
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.runtime.staticAmbientOf
 
-internal actual class PointerInputEvent(
-    actual val uptime: Long,
-    actual val pointers: List<PointerInputEventData>
-)
-
-/**
- * This exposes PointerInputEventData for testing purposes.
- */
-class TestPointerInputEventData(
-    val id: PointerId,
-    val uptime: Long,
-    val position: Offset,
-    val down: Boolean
-) {
-    internal fun toPointerInputEventData() =
-        PointerInputEventData(id, uptime, position, down, PointerType.Mouse)
-}
+val AmbientTest = staticAmbientOf<Int>()
