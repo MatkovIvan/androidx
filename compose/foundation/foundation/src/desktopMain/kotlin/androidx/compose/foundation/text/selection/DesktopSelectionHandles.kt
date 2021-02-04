@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.input.pointer
+package androidx.compose.foundation.text.selection
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import java.awt.event.MouseEvent
-
-internal actual class PointerInputEvent(
-    actual val uptime: Long,
-    actual val pointers: List<PointerInputEventData>,
-    val mouseEvent: MouseEvent? = null
-)
+import androidx.compose.ui.text.InternalTextApi
+import androidx.compose.ui.text.style.ResolvedTextDirection
 
 /**
- * This exposes PointerInputEventData for testing purposes.
+ * @suppress
  */
-class TestPointerInputEventData(
-    val id: PointerId,
-    val uptime: Long,
-    val position: Offset,
-    val down: Boolean
+@InternalTextApi
+@Composable
+actual fun SelectionHandle(
+    startHandlePosition: Offset?,
+    endHandlePosition: Offset?,
+    isStartHandle: Boolean,
+    directions: Pair<ResolvedTextDirection, ResolvedTextDirection>,
+    handlesCrossed: Boolean,
+    modifier: Modifier,
+    handle: (@Composable () -> Unit)?
 ) {
-    internal fun toPointerInputEventData() =
-        PointerInputEventData(id, uptime, position, down, PointerType.Mouse)
+    // TODO
 }
