@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.input.pointer
+package androidx.compose.ui.text
 
-import java.awt.event.MouseEvent
+import java.util.Locale
 
-internal actual class InternalPointerEvent constructor(
-    actual val changes: Map<PointerId, PointerInputChange>,
-    val mouseEvent: MouseEvent?
-) {
-    actual constructor(
-        changes: Map<PointerId, PointerInputChange>,
-        pointerInputEvent: PointerInputEvent
-    ) : this(changes, pointerInputEvent.mouseEvent)
-}
+private val os = System.getProperty("os.name").toLowerCase(Locale.US)
+internal val isLinux = os.startsWith("linux")
+internal val isWindows = os.startsWith("win")
+internal val isMacOs = os.startsWith("mac")
