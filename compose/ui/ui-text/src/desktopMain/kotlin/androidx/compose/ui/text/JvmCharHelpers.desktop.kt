@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.graphics
+package androidx.compose.ui.text
 
-fun VertexMode.toDesktopVertexMode(): Int = when (this) {
-    VertexMode.Triangles -> 0
-    VertexMode.TriangleStrip -> 1
-    VertexMode.TriangleFan -> 2
-    else -> 0
+import org.jetbrains.skija.BreakIterator
+
+internal actual fun String.findPrecedingBreak(index: Int): Int {
+    val it = BreakIterator.makeCharacterInstance()
+    it.setText(this)
+    return it.preceding(index)
+}
+
+internal actual fun String.findFollowingBreak(index: Int): Int {
+    val it = BreakIterator.makeCharacterInstance()
+    it.setText(this)
+    return it.following(index)
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.graphics
+package androidx.compose.foundation
 
-fun VertexMode.toDesktopVertexMode(): Int = when (this) {
-    VertexMode.Triangles -> 0
-    VertexMode.TriangleStrip -> 1
-    VertexMode.TriangleFan -> 2
-    else -> 0
-}
+// TODO: b/168524931 - should this depend on the input device?
+internal actual val TapIndicationDelay: Long = 0L
