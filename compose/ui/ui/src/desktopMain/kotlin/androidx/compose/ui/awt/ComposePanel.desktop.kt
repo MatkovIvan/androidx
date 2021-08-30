@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.compose.desktop
+package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -46,6 +46,8 @@ class ComposePanel : JLayeredPane() {
         layer?.wrapped?.setSize(width, height)
         super.setBounds(x, y, width, height)
     }
+
+    override fun getPreferredSize() = layer?.wrapped?.preferredSize
 
     /**
      * Sets Compose content of the ComposePanel.
@@ -93,10 +95,11 @@ class ComposePanel : JLayeredPane() {
 
         // After [super.addNotify] is called we can safely initialize the layer and composable
         // content.
-        layer = ComposeLayer()
-        super.add(layer!!.component, Integer.valueOf(1))
-        layer?.wrapped?.setSize(width, height)
+        layer = ComposeLayer().apply {
+            wrapped.setSize(width, height)
+        }
         initContent()
+        super.add(layer!!.component, Integer.valueOf(1))
     }
 
     override fun removeNotify() {
