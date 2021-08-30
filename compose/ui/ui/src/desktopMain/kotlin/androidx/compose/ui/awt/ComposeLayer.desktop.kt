@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.desktop
+package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.DesktopOwner
 import androidx.compose.ui.platform.DesktopOwners
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.window.density
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -34,6 +35,7 @@ import kotlinx.coroutines.swing.Swing
 import org.jetbrains.skija.Canvas
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkiaRenderer
+import java.awt.Dimension
 import java.awt.Point
 import java.awt.event.FocusEvent
 import java.awt.event.InputMethodEvent
@@ -51,8 +53,9 @@ internal class ComposeLayer {
     private var isDisposed = false
 
     private val coroutineScope = CoroutineScope(Dispatchers.Swing)
-    // TODO(demin): maybe pass CoroutineScope into AWTDebounceEventQueue and get rid of [cancel]
-    //  method?
+    // TODO(demin): probably we need to get rid of asynchronous events. it was added because of
+    //  slow lazy scroll. But events become unpredictable, and we can't consume them.
+    //  Alternative solution to a slow scroll - merge multiple scroll events into a single one.
     private val events = AWTDebounceEventQueue()
 
     internal val wrapped = Wrapped().apply {
@@ -88,7 +91,7 @@ internal class ComposeLayer {
         }
 
         internal fun resetDensity() {
-            this@ComposeLayer.density = detectCurrentDensity()
+            this@ComposeLayer.density = (this as SkiaLayer).density
             owner?.density = density
         }
 
@@ -105,7 +108,25 @@ internal class ComposeLayer {
             currentInputMethodRequests = null
         }
 
+        override fun doLayout() {
+            super.doLayout()
+            val owner = owner
+            if (owner != null) {
+                val density = density.density
+                owner.setSize(
+                    (width * density).toInt().coerceAtLeast(0),
+                    (height * density).toInt().coerceAtLeast(0)
+                )
+                owner.measureAndLayout()
+                preferredSize = Dimension(
+                    (owner.root.width / density).toInt(),
+                    (owner.root.height / density).toInt()
+                )
+            }
+        }
+
         override val locationOnScreen: Point
+            @Suppress("ACCIDENTAL_OVERRIDE") // KT-47743
             get() = super.getLocationOnScreen()
 
         override val density: Density
@@ -201,16 +222,22 @@ internal class ComposeLayer {
         }
         wrapped.focusTraversalKeysEnabled = false
         wrapped.addKeyListener(object : KeyAdapter() {
-            override fun keyPressed(event: KeyEvent) = events.post {
-                owners.onKeyPressed(event)
+            override fun keyPressed(event: KeyEvent) {
+                if (owners.onKeyPressed(event)) {
+                    event.consume()
+                }
             }
 
-            override fun keyReleased(event: KeyEvent) = events.post {
-                owners.onKeyReleased(event)
+            override fun keyReleased(event: KeyEvent) {
+                if (owners.onKeyReleased(event)) {
+                    event.consume()
+                }
             }
 
-            override fun keyTyped(event: KeyEvent) = events.post {
-                owners.onKeyTyped(event)
+            override fun keyTyped(event: KeyEvent) {
+                if (owners.onKeyTyped(event)) {
+                    event.consume()
+                }
             }
         })
     }
@@ -229,14 +256,6 @@ internal class ComposeLayer {
             MouseScrollOrientation.Vertical
         }
     )
-
-    // TODO(demin): detect OS fontScale
-    //  font size can be changed on Windows 10 in Settings - Ease of Access,
-    //  on Ubuntu in Settings - Universal Access
-    //  on macOS there is no such setting
-    private fun detectCurrentDensity(): Density {
-        return Density(wrapped.contentScale, 1f)
-    }
 
     fun dispose() {
         check(!isDisposed)

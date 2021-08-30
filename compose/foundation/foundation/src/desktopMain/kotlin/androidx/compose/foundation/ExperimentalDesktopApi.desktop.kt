@@ -14,17 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.window
+package androidx.compose.foundation
 
-import java.awt.Window
-
-/**
- * Scope that is created by [application], [Window] or [Dialog] and provides an owner window of
- * this scope
- */
-interface OwnerWindowScope {
-    /**
-     *  Owner window of this scope
-     */
-    val ownerWindow: Window?
-}
+@RequiresOptIn("This API is experimental and is likely to change in the future.")
+annotation class ExperimentalDesktopApi

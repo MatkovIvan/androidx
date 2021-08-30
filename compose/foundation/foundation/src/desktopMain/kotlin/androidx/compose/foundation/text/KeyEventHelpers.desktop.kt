@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,11 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION_ERROR")
+package androidx.compose.foundation.text
 
-package androidx.compose.desktop
+import androidx.compose.ui.input.key.KeyEvent
+import org.jetbrains.skiko.orderEmojiAndSymbolsPopup
 
-/**
- * Can be called multiple times.
- *
- * Initialization will occur only on the first call. The next calls will do nothing.
- *
- * Should be called in a class that uses Jetpack Compose Api:
- *
- * class SomeClass {
- *     companion object {
- *         init {
- *             initCompose()
- *         }
- *     }
- * }
- */
-@Suppress("DeprecatedCallableAddReplaceWith")
-@Deprecated("We don't need to init Compose explicitly now")
-fun initCompose() = Unit
+internal actual fun KeyEvent.cancelsTextSelection(): Boolean = false
+
+internal actual fun showCharacterPalette() = orderEmojiAndSymbolsPopup()
