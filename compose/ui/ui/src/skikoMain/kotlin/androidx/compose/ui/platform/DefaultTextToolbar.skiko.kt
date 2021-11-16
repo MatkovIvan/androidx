@@ -16,19 +16,22 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.unit.Density
-import java.awt.Point
-import java.awt.im.InputMethodRequests
+import androidx.compose.ui.geometry.Rect
 
-internal interface DesktopComponent : DesktopInputComponent
+// TODO(demin): implement TextToolbar
+internal class DefaultTextToolbar : TextToolbar {
+    override val status: TextToolbarStatus
+        get() = TextToolbarStatus.Hidden
 
-internal object DummyDesktopComponent : DesktopComponent {
-    var enabledInput: InputMethodRequests? = null
-    override fun enableInput(inputMethodRequests: InputMethodRequests) {
-        enabledInput = inputMethodRequests
+    override fun hide() {
     }
-    override fun disableInput() { enabledInput = null }
-    override val locationOnScreen = Point(0, 0)
-    override val density: Density
-        get() = Density(1f, 1f)
+
+    override fun showMenu(
+        rect: Rect,
+        onCopyRequested: ActionCallback?,
+        onPasteRequested: ActionCallback?,
+        onCutRequested: ActionCallback?,
+        onSelectAllRequested: ActionCallback?
+    ) {
+    }
 }

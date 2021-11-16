@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,13 @@
 
 package androidx.compose.ui.platform
 
-import java.awt.Desktop
-import java.net.URI
-
-internal class DesktopUriHandler : UriHandler {
-    override fun openUri(uri: String) {
-        Desktop.getDesktop().browse(URI(uri))
+internal class DefaultAccessibilityManager : AccessibilityManager {
+    override fun calculateRecommendedTimeoutMillis(
+        originalTimeoutMillis: Long,
+        containsIcons: Boolean,
+        containsText: Boolean,
+        containsControls: Boolean
+    ): Long {
+        return originalTimeoutMillis
     }
 }
