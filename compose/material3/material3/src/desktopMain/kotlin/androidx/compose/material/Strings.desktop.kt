@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
+package androidx.compose.material3
 
-internal class DesktopAccessibilityManager : AccessibilityManager {
-    override fun calculateRecommendedTimeoutMillis(
-        originalTimeoutMillis: Long,
-        containsIcons: Boolean,
-        containsText: Boolean,
-        containsControls: Boolean
-    ): Long {
-        return originalTimeoutMillis
+import androidx.compose.runtime.Composable
+
+@Composable
+internal actual fun getString(string: Strings): String {
+    return when (string) {
+        Strings.NavigationMenu -> "Navigation menu"
+        Strings.CloseDrawer -> "Close navigation menu"
+        Strings.CloseSheet -> "Close sheet"
+        Strings.DefaultErrorMessage -> "Invalid input"
+        else -> ""
     }
 }

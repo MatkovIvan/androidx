@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.compose.ui.platform
 
-package androidx.compose.ui.input.pointer
+import androidx.compose.ui.text.input.PlatformTextInputService
 
-import java.awt.event.MouseEvent
+internal expect interface PlatformInputComponent
 
-internal actual class PointerInputEvent(
-    val eventType: PointerEventType,
-    actual val uptime: Long,
-    actual val pointers: List<PointerInputEventData>,
-    val mouseEvent: MouseEvent? = null
-)
+internal expect class PlatformInput(component: PlatformComponent) :
+    PlatformTextInputService

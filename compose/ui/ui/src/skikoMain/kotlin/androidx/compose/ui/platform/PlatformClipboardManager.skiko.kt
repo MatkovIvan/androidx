@@ -16,11 +16,4 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.hapticfeedback.HapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-
-// TODO(demin): implement HapticFeedback
-internal class DesktopHapticFeedback : HapticFeedback {
-    override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
-    }
-}
+internal expect class PlatformClipboardManager : ClipboardManager

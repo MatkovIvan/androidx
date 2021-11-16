@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
+package androidx.compose.foundation.text
 
-import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.pointer.PointerIcon
+import java.awt.Cursor
 
-// TODO(demin): implement TextToolbar
-internal class DesktopTextToolbar : TextToolbar {
-    override val status: TextToolbarStatus
-        get() = TextToolbarStatus.Hidden
-
-    override fun hide() {
-    }
-
-    override fun showMenu(
-        rect: Rect,
-        onCopyRequested: ActionCallback?,
-        onPasteRequested: ActionCallback?,
-        onCutRequested: ActionCallback?,
-        onSelectAllRequested: ActionCallback?
-    ) {
-    }
-}
+internal actual val textPointerIcon: PointerIcon =
+    PointerIcon(Cursor(Cursor.TEXT_CURSOR))
