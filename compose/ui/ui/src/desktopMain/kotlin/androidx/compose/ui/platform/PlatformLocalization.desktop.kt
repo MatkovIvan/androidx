@@ -14,10 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text
+package androidx.compose.ui.platform
 
-import androidx.compose.foundation.text.selection.TextFieldSelectionManager
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.staticCompositionLocalOf
 
-internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManager): Modifier =
-    Modifier
+interface PlatformLocalization {
+    val copy: String
+    val cut: String
+    val paste: String
+    val selectAll: String
+}
+
+internal val defaultPlatformLocalization = object : PlatformLocalization {
+    override val copy = "Copy"
+    override val cut = "Cut"
+    override val paste = "Paste"
+    override val selectAll = "Select All"
+}
+
+val LocalLocalization = staticCompositionLocalOf {
+    defaultPlatformLocalization
+}
