@@ -14,8 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.lazy
+package androidx.compose.ui.platform
 
-internal actual fun getDefaultLazyKeyFor(index: Int): Any = DefaultLazyKey(index)
+import androidx.compose.runtime.staticCompositionLocalOf
 
-private data class DefaultLazyKey(private val index: Int)
+interface PlatformLocalization {
+    val copy: String
+    val cut: String
+    val paste: String
+    val selectAll: String
+}
+
+internal val defaultPlatformLocalization = object : PlatformLocalization {
+    override val copy = "Copy"
+    override val cut = "Cut"
+    override val paste = "Paste"
+    override val selectAll = "Select All"
+}
+
+val LocalLocalization = staticCompositionLocalOf {
+    defaultPlatformLocalization
+}
