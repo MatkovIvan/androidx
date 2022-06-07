@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text
+package androidx.compose.foundation.lazy.layout
 
-import androidx.compose.foundation.text.selection.TextFieldSelectionManager
-import androidx.compose.ui.Modifier
+import androidx.compose.foundation.ExperimentalFoundationApi
 
-internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManager): Modifier =
-    Modifier
+@ExperimentalFoundationApi
+actual fun getDefaultLazyLayoutKey(index: Int): Any = DefaultLazyKey(index)
+
+private data class DefaultLazyKey(private val index: Int)
