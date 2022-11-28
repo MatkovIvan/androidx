@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test.junit4
+package androidx.compose.ui.test.internal
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScheduler
-
-@OptIn(ExperimentalCoroutinesApi::class)
-internal class MainTestClockImpl(
-    testScheduler: TestCoroutineScheduler,
-    frameDelayMillis: Long
-) : AbstractMainTestClock(
-    testScheduler,
-    frameDelayMillis,
-    ::runOnUiThread
-)
+// TODO: this actual is not needed after https://youtrack.jetbrains.com/issue/KT-53149 is implemented
+internal annotation class NoOp
+internal actual typealias JvmDefaultWithCompatibility = NoOp
