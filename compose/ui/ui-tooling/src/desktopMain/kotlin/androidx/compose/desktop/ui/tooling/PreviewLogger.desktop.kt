@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package androidx.compose.ui.tooling
 
-import androidx.compose.runtime.Composable
+private const val Tag = "PreviewLogger"
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-internal actual fun rememberOverscrollEffect(): OverscrollEffect = NoOpOverscrollEffect
+internal actual class PreviewLogger {
+
+    actual companion object {
+        internal actual fun logWarning(message: String, throwable: Throwable?) {
+            println("$Tag: $message.\n$throwable")
+        }
+
+        internal actual fun logError(message: String, throwable: Throwable?) {
+            System.err.println("$Tag: $message.\n$throwable")
+        }
+    }
+}
