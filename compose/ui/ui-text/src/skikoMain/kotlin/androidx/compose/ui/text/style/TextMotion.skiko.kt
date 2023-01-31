@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package androidx.compose.ui.text.style
 
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.ui.text.ExperimentalTextApi
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-internal actual fun rememberOverscrollEffect(): OverscrollEffect = NoOpOverscrollEffect
+@Immutable
+@ExperimentalTextApi
+actual class TextMotion private constructor() {
+    actual companion object {
+        actual val Static: TextMotion = TextMotion()
+
+        actual val Animated: TextMotion = TextMotion()
+    }
+}

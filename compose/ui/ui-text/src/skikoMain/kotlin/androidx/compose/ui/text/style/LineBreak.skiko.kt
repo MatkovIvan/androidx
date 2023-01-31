@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.ui.text.style
 
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 
-internal actual val WindowInsets.Companion.safeDrawingForVisualComponents: WindowInsets
-    @Composable
-    get() = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)
+@Immutable
+@JvmInline
+actual value class LineBreak private constructor(
+    internal val mask: Int
+) {
+    actual companion object {
+        actual val Simple: LineBreak = LineBreak(1)
+
+        actual val Heading: LineBreak = LineBreak(2)
+
+        actual val Paragraph: LineBreak = LineBreak(3)
+    }
+}
