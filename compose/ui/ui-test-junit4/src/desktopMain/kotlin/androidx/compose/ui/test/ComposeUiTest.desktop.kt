@@ -1,5 +1,3 @@
-// ktlint-disable filename
-
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -32,6 +30,8 @@ import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -40,16 +40,29 @@ import kotlinx.coroutines.yield
 import kotlin.coroutines.cancellation.CancellationException
 import org.jetbrains.skia.Surface
 
+@ExperimentalTestApi
+@OptIn(InternalTestApi::class)
+actual fun runComposeUiTest(effectContext: CoroutineContext, block: ComposeUiTest.() -> Unit) {
+    DesktopComposeUiTest(effectContext).runTest(block)
+}
+
+/**
+ * @param effectContext The [CoroutineContext] used to run the composition. The context for
+ * `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
+ */
 @InternalTestApi
+@ExperimentalTestApi
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalCoroutinesApi::class)
-internal class DesktopComposeTest : ComposeTest {
+class DesktopComposeUiTest(
+    effectContext: CoroutineContext = EmptyCoroutineContext
+) : ComposeUiTest {
 
     override val density = Density(1f, 1f)
 
     private val coroutineDispatcher = UnconfinedTestDispatcher()
     private val testScope = TestScope(coroutineDispatcher)
     override val mainClock: MainTestClock =
-        MainTestClockImpl(coroutineDispatcher, frameDelayMillis = 16L)
+        MainTestClockImpl(coroutineDispatcher.scheduler, frameDelayMillis = 16L)
     private val uncaughtExceptionHandler = UncaughtExceptionHandler()
     private val infiniteAnimationPolicy = object : InfiniteAnimationPolicy {
         override suspend fun <R> onInfiniteOperation(block: suspend () -> R): R {
@@ -60,7 +73,11 @@ internal class DesktopComposeTest : ComposeTest {
         }
     }
     private val coroutineContext =
-        coroutineDispatcher + uncaughtExceptionHandler + infiniteAnimationPolicy
+        effectContext +
+            coroutineDispatcher +
+            uncaughtExceptionHandler +
+            infiniteAnimationPolicy
+
     private val surface = Surface.makeRasterN32Premul(1024, 768)
 
     lateinit var scene: ComposeScene
@@ -68,7 +85,7 @@ internal class DesktopComposeTest : ComposeTest {
     private val testOwner = DesktopTestOwner()
     private val testContext = createTestContext(testOwner)
 
-    fun <R> runTest(block: ComposeTest.() -> R): R {
+    fun <R> runTest(block: ComposeUiTest.() -> R): R {
         scene = runOnUiThread(::createUi)
         try {
             return block()
@@ -192,14 +209,28 @@ internal class DesktopComposeTest : ComposeTest {
         }
 
         override fun <T> runOnUiThread(action: () -> T): T {
-            return this@DesktopComposeTest.runOnUiThread(action)
+            return this@DesktopComposeUiTest.runOnUiThread(action)
         }
 
         override fun getRoots(atLeastOneRootExpected: Boolean): Set<RootForTest> {
-            return this@DesktopComposeTest.scene.roots
+            return this@DesktopComposeUiTest.scene.roots
         }
 
         override val mainClock get() =
-            this@DesktopComposeTest.mainClock
+            this@DesktopComposeUiTest.mainClock
     }
+}
+
+@ExperimentalTestApi
+actual sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
+    actual val density: Density
+    actual val mainClock: MainTestClock
+    actual fun <T> runOnUiThread(action: () -> T): T
+    actual fun <T> runOnIdle(action: () -> T): T
+    actual fun waitForIdle()
+    actual suspend fun awaitIdle()
+    actual fun waitUntil(timeoutMillis: Long, condition: () -> Boolean)
+    actual fun registerIdlingResource(idlingResource: IdlingResource)
+    actual fun unregisterIdlingResource(idlingResource: IdlingResource)
+    actual fun setContent(composable: @Composable () -> Unit)
 }
