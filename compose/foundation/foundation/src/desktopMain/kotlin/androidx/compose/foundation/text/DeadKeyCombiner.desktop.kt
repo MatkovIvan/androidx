@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text.style
+package androidx.compose.foundation.text
 
-import androidx.compose.runtime.Immutable
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.utf16CodePoint
 
-@Immutable
-@JvmInline
-actual value class LineBreak private constructor(
-    internal val mask: Int
-) {
-    actual companion object {
-        actual val Simple: LineBreak = LineBreak(1)
-
-        actual val Heading: LineBreak = LineBreak(2)
-
-        actual val Paragraph: LineBreak = LineBreak(3)
-    }
+internal actual class DeadKeyCombiner {
+    // TODO needs actual impl
+    actual fun consume(event: KeyEvent): Int? = event.utf16CodePoint
 }
