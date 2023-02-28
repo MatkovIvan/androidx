@@ -16,9 +16,6 @@
 
 package androidx.compose.material3
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
-
-internal actual val is24HourFormat: Boolean
-    @Composable
-    @ReadOnlyComposable get() = false
+@OptIn(ExperimentalMaterial3Api::class)
+internal actual val defaultTimePickerLayoutType: TimePickerLayoutType =
+    TimePickerLayoutType.Vertical
