@@ -17,17 +17,14 @@
 package androidx.compose.ui.text.style
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.text.ExperimentalTextApi
 
 @Immutable
-@JvmInline
-actual value class LineBreak private constructor(
-    internal val mask: Int
-) {
+@ExperimentalTextApi
+actual class TextMotion private constructor() {
     actual companion object {
-        actual val Simple: LineBreak = LineBreak(1)
+        actual val Static: TextMotion = TextMotion()
 
-        actual val Heading: LineBreak = LineBreak(2)
-
-        actual val Paragraph: LineBreak = LineBreak(3)
+        actual val Animated: TextMotion = TextMotion()
     }
 }
