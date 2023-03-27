@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text.style
+package androidx.compose.ui.tooling
 
-import androidx.compose.runtime.Immutable
+private const val Tag = "PreviewLogger"
 
-@Immutable
-@JvmInline
-actual value class LineBreak private constructor(
-    internal val mask: Int
-) {
+internal actual class PreviewLogger {
+
     actual companion object {
-        actual val Simple: LineBreak = LineBreak(1)
+        internal actual fun logWarning(message: String, throwable: Throwable?) {
+            println("$Tag: $message.\n$throwable")
+        }
 
-        actual val Heading: LineBreak = LineBreak(2)
-
-        actual val Paragraph: LineBreak = LineBreak(3)
+        internal actual fun logError(message: String, throwable: Throwable?) {
+            System.err.println("$Tag: $message.\n$throwable")
+        }
     }
 }
