@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.foundation.text
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.utf16CodePoint
 
-// TODO: [1.4 Update] implement properly and change to val back when JS compiler is fixed
-@Composable
-@ReadOnlyComposable
-internal actual fun is24HourFormat(): Boolean = true
+internal actual class DeadKeyCombiner {
+    // TODO needs actual impl
+    // TODO: [1.4 Update] provide proper implementation
+    actual fun consume(event: KeyEvent): Int? = event.utf16CodePoint
+}
