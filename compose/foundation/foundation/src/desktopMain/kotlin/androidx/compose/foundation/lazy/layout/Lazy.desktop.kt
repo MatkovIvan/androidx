@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.lazy
+package androidx.compose.foundation.lazy.layout
 
-internal actual fun getDefaultLazyKeyFor(index: Int): Any = DefaultLazyKey(index)
+import androidx.compose.foundation.ExperimentalFoundationApi
+
+@ExperimentalFoundationApi
+actual fun getDefaultLazyLayoutKey(index: Int): Any = DefaultLazyKey(index)
 
 private data class DefaultLazyKey(private val index: Int)
