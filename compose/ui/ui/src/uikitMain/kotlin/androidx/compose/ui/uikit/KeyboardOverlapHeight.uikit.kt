@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.ui.uikit
 
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 
-@Composable
-internal actual fun WindowInsets.Companion.systemBarsForVisualComponents(): WindowInsets {
-    return WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)
+/**
+ * Composition local for height that is overlapped with keyboard over Compose view.
+ */
+@InternalComposeApi
+val LocalKeyboardOverlapHeightState = staticCompositionLocalOf<State<Float>> {
+    error("CompositionLocal LocalKeyboardOverlapHeightState not present")
 }
-//    @Composable
-//    get() = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)
