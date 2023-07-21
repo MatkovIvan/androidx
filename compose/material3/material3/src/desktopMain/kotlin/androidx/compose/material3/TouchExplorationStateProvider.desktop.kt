@@ -17,14 +17,15 @@
 package androidx.compose.material3
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.window.Popup
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 
 /**
- * Popup specific for modal bottom sheet.
+ * It depends on the state of accessibility services to determine the current state of touch
+ * exploration services.
  */
 @Composable
-@ExperimentalMaterial3Api
-internal actual fun ModalBottomSheetPopup(
-    onDismissRequest: () -> Unit,
-    content: @Composable () -> Unit
-) = Popup(content = content)
+internal actual fun touchExplorationState(): State<Boolean> {
+    return remember { derivedStateOf { false } }
+}
