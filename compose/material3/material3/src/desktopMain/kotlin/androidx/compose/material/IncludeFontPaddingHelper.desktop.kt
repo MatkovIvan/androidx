@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.lazy
+package androidx.compose.material3
 
-internal actual fun getDefaultLazyKeyFor(index: Int): Any = DefaultLazyKey(index)
+import androidx.compose.ui.text.TextStyle
 
-private data class DefaultLazyKey(private val index: Int)
+// TODO(b/237588251) remove this once the default includeFontPadding is false
+/* NOOP includeFontPadding doesn't exist on desktop */
+internal actual fun copyAndSetFontPadding(
+    style: TextStyle,
+    includeFontPadding: Boolean
+): TextStyle = style
