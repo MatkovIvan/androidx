@@ -16,21 +16,7 @@
 
 package androidx.compose.ui.text.input
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.ui.text.ExperimentalTextApi
-
-// TODO(b/267235947) Flesh this out, document it, and wire it up when ready to integrate new text
-//  field with desktop.
-@ExperimentalTextApi
-@Immutable
-actual interface PlatformTextInputPlugin<T : PlatformTextInputAdapter>
-
-// TODO(b/267235947) Flesh this out, document it, and wire it up when ready to integrate new text
-//  field with desktop.
-@ExperimentalTextApi
-actual interface PlatformTextInputAdapter
-
-@OptIn(ExperimentalTextApi::class)
-internal actual fun PlatformTextInputAdapter.dispose() {
-    // TODO(b/267235947)
-}
+/**
+ * Used to configure the platform specific IME options.
+ */
+actual sealed interface PlatformImeOptions
