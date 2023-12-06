@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package androidx.compose.ui
 
-actual class AtomicLong actual constructor(value: Long) {
+@JsFun("x => { try { Object.getPrototypeOf(x) } catch(e) { return true; }; return false; }")
+private external fun isNotJs(x: JsAny): Boolean
 
-    private val atomic = kotlin.concurrent.AtomicLong(value)
+@JsFun("(a, b) => Object.getPrototypeOf(a).constructor == Object.getPrototypeOf(b).constructor")
+private external fun areObjectsOfSameTypeJsImpl(a: JsAny, b: JsAny): Boolean
 
-    actual fun get(): Long = atomic.value
 
-    actual fun set(value: Long) {
-        atomic.value = value
-    }
-
-    actual fun getAndIncrement(): Long = atomic.addAndGet(1L) - 1
+internal actual fun areObjectsOfSameType(a: Any, b: Any): Boolean {
+    return a === b || a::class == b::class
 }

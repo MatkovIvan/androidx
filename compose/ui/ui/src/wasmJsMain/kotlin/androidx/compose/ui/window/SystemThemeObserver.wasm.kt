@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package androidx.compose.ui.window
 
-actual class AtomicLong actual constructor(value: Long) {
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.SystemTheme
+import org.w3c.dom.Window
 
-    private val atomic = kotlin.concurrent.AtomicLong(value)
+internal actual fun getSystemThemeObserver(window: Window): SystemThemeObserver {
+    return object : SystemThemeObserver {
+        override val currentSystemTheme: State<SystemTheme>
+            get() = mutableStateOf(SystemTheme.Unknown)
 
-    actual fun get(): Long = atomic.value
-
-    actual fun set(value: Long) {
-        atomic.value = value
+        override fun dispose() {}
     }
-
-    actual fun getAndIncrement(): Long = atomic.addAndGet(1L) - 1
 }

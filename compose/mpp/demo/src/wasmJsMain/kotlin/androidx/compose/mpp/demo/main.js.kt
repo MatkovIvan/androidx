@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package androidx.compose.mpp.demo
 
-actual class AtomicLong actual constructor(value: Long) {
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.window.CanvasBasedWindow
 
-    private val atomic = kotlin.concurrent.AtomicLong(value)
-
-    actual fun get(): Long = atomic.value
-
-    actual fun set(value: Long) {
-        atomic.value = value
+@OptIn(ExperimentalComposeUiApi::class)
+fun main() {
+    CanvasBasedWindow("Compose/JS sample", canvasElementId = "canvas1") {
+        val app = remember { App() }
+        app.Content()
     }
-
-    actual fun getAndIncrement(): Long = atomic.addAndGet(1L) - 1
 }
+
+
+@Composable
+internal fun returnsNullable(): Any? = null

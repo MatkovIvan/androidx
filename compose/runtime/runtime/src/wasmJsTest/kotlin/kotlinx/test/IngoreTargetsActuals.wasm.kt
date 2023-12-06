@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package kotlinx.test
 
-package androidx.compose.foundation
-
-actual class AtomicLong actual constructor(value: Long) {
-
-    private val atomic = kotlin.concurrent.AtomicLong(value)
-
-    actual fun get(): Long = atomic.value
-
-    actual fun set(value: Long) {
-        atomic.value = value
-    }
-
-    actual fun getAndIncrement(): Long = atomic.addAndGet(1L) - 1
-}
+actual typealias IgnoreJsTarget = kotlin.test.Ignore
+actual typealias IgnoreNativeTarget = DoNothing
+actual typealias IgnoreJsAndNative = kotlin.test.Ignore

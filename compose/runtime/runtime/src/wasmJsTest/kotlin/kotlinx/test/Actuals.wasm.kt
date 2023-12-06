@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package kotlinx.test
 
-actual class AtomicLong actual constructor(value: Long) {
+import kotlinx.coroutines.*
 
-    private val atomic = kotlin.concurrent.AtomicLong(value)
-
-    actual fun get(): Long = atomic.value
-
-    actual fun set(value: Long) {
-        atomic.value = value
+@OptIn(DelicateCoroutinesApi::class)
+// TODO: make a proper implementation with timeoutMs - COMPOSE-662
+actual suspend fun testWithTimeout(timeoutMs: Long, block: suspend CoroutineScope.() -> Unit) {
+    GlobalScope.launch {
+        block()
     }
-
-    actual fun getAndIncrement(): Long = atomic.addAndGet(1L) - 1
 }

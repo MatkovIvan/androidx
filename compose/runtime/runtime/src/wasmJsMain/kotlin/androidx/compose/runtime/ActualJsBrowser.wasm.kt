@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package androidx.compose.runtime
 
-actual class AtomicLong actual constructor(value: Long) {
-
-    private val atomic = kotlin.concurrent.AtomicLong(value)
-
-    actual fun get(): Long = atomic.value
-
-    actual fun set(value: Long) {
-        atomic.value = value
+// todo: trace?
+internal actual object Trace {
+    actual fun beginSection(name: String): Any? {
+        return null
     }
 
-    actual fun getAndIncrement(): Long = atomic.addAndGet(1L) - 1
+    actual fun endSection(token: Any?) {
+    }
 }
+
+actual annotation class CheckResult actual constructor(actual val suggest: String)

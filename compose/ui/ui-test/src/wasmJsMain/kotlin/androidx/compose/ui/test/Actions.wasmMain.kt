@@ -14,20 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
+package androidx.compose.ui.test
 
-internal class AtomicIntWrapper(value_: Int) {
-
-    private val delegate = kotlin.concurrent.AtomicInt(value_)
-    fun addAndGet(delta: Int): Int = delegate.addAndGet(delta)
-    fun compareAndSet(expected: Int, new: Int): Boolean = delegate.compareAndSet(expected, new)
-}
-
-internal actual typealias AtomicInt = AtomicIntWrapper
-
-internal actual fun Any.nativeClass(): Any = this::class
-
-internal actual fun simpleIdentityToString(obj: Any, name: String?): String {
-    val className = name ?: obj::class.qualifiedName ?: "<object>"
-    return "$className@${obj.hashCode()}"
+@OptIn(ExperimentalTestApi::class)
+internal actual fun SemanticsNodeInteraction.performClickImpl(): SemanticsNodeInteraction {
+    return performMouseInput {
+        click()
+    }
 }

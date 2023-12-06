@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package androidx.compose.ui.text.intl
 
-actual class AtomicLong actual constructor(value: Long) {
-
-    private val atomic = kotlin.concurrent.AtomicLong(value)
-
-    actual fun get(): Long = atomic.value
-
-    actual fun set(value: Long) {
-        atomic.value = value
+internal actual fun userPreferredLanguages(): List<String> {
+    val jsStringArray = getUserPreferredLanguagesAsArray()
+    return buildList<String> {
+        repeat(jsStringArray.length) {
+            add(jsStringArray[it].toString())
+        }
     }
-
-    actual fun getAndIncrement(): Long = atomic.addAndGet(1L) - 1
 }
+
+private fun getUserPreferredLanguagesAsArray(): JsArray<JsString> =
+    js("window.navigator.languages")
