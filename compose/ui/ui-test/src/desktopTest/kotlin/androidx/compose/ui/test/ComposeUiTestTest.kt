@@ -18,34 +18,16 @@ package androidx.compose.ui.test
 
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.MotionDurationScale
-import androidx.compose.ui.test.junit4.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestWatcher
-import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.junit.runners.model.Statement
 
 @RunWith(JUnit4::class)
 @OptIn(ExperimentalTestApi::class)
 class ComposeUiTestTest {
-
-    private lateinit var testDescription: Description
-
-    /**
-     * Records the current [testDescription] for tests that need to invoke the compose test rule
-     * directly.
-     */
-    @get:Rule
-    val testWatcher = object : TestWatcher() {
-        override fun starting(description: Description) {
-            testDescription = description
-        }
-    }
 
     @Test
     fun effectContextPropagatedToComposition_runComposeUiTest() {
@@ -62,27 +44,6 @@ class ComposeUiTestTest {
                 assertThat(elementFromComposition).isSameInstanceAs(testElement)
             }
         }
-    }
-
-    @Test
-    fun effectContextPropagatedToComposition_createComposeRule() {
-        val testElement = TestCoroutineContextElement()
-        lateinit var compositionScope: CoroutineScope
-        val rule = createComposeRule(testElement)
-        val baseStatement = object : Statement() {
-            override fun evaluate() {
-                rule.setContent {
-                    compositionScope = rememberCoroutineScope()
-                }
-                rule.waitForIdle()
-            }
-        }
-        rule.apply(baseStatement, testDescription)
-            .evaluate()
-
-        val elementFromComposition =
-            compositionScope.coroutineContext[TestCoroutineContextElement]
-        assertThat(elementFromComposition).isSameInstanceAs(testElement)
     }
 
     @Test
