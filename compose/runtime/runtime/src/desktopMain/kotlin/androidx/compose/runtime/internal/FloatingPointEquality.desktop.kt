@@ -14,21 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.runtime.internal
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
+@Suppress("NOTHING_TO_INLINE")
+internal actual inline fun Float.equalsWithNanFix(other: Float): Boolean = (this == other)
 
-@Composable
-@ExperimentalMaterial3Api
-internal actual fun TooltipPopup(
-    popupPositionProvider: PopupPositionProvider,
-    onDismissRequest: () -> Unit,
-    focusable: Boolean,
-    content: @Composable () -> Unit
-) = Popup(
-    popupPositionProvider = popupPositionProvider,
-    onDismissRequest = onDismissRequest,
-    content = content
-)
+@Suppress("NOTHING_TO_INLINE")
+internal actual inline fun Double.equalsWithNanFix(other: Double): Boolean = (this == other)
