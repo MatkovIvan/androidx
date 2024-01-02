@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2.selection
+package androidx.compose.ui.test
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.ResolvedTextDirection
+import kotlinx.coroutines.test.TestCoroutineScheduler
 
-/**
- * Handles are not supported on Desktop.
- */
-@Composable
-internal actual fun TextFieldSelectionHandle2(
-    positionProvider: OffsetProvider,
-    isStartHandle: Boolean,
-    direction: ResolvedTextDirection,
-    handlesCrossed: Boolean,
-    modifier: Modifier
-) {}
+internal class MainTestClockImpl(
+    testScheduler: TestCoroutineScheduler,
+    frameDelayMillis: Long
+) : AbstractMainTestClock(
+    testScheduler,
+    frameDelayMillis,
+    ::runOnUiThread
+)

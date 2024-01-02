@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.ui.draganddrop
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.geometry.Offset
+import java.awt.dnd.DropTargetEvent as AwtDropTargetEvent
 
-@Composable
-@ExperimentalMaterial3Api
-internal actual fun TooltipPopup(
-    popupPositionProvider: PopupPositionProvider,
-    onDismissRequest: () -> Unit,
-    focusable: Boolean,
-    content: @Composable () -> Unit
-) = Popup(
-    popupPositionProvider = popupPositionProvider,
-    onDismissRequest = onDismissRequest,
-    content = content
+actual class DragAndDropTransferData
+
+/**
+ * AWT [DragAndDropEvent] which delegates to a [AwtDropTargetEvent]
+ */
+actual class DragAndDropEvent(
+    internal val dropTargetEvent: AwtDropTargetEvent,
 )
+
+internal actual val DragAndDropEvent.positionInRoot: Offset
+    get() = TODO()
