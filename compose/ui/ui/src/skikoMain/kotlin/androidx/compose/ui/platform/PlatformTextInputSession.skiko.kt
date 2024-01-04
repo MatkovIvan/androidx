@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.text.input.PlatformTextInputMethodRequest
-
 // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-733/Merge-1.6.-Apply-changes-for-the-new-text-input) implement
 actual interface PlatformTextInputSession {
     actual suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing
