@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.ui.platform
 
-actual typealias InternalAtomicReference<V> = androidx.compose.runtime.AtomicReference<V>
+import kotlinx.atomicfu.atomic
+
+internal actual class AtomicInt actual constructor(value: Int) {
+    private val delegate = atomic(value)
+    actual fun addAndGet(delta: Int): Int = delegate.addAndGet(delta)
+    actual fun compareAndSet(expected: Int, new: Int) = delegate.compareAndSet(expected, new)
+}
