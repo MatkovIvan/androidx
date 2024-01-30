@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,11 @@
 
 package androidx.compose.material3
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.text.TextStyle
 
-/**
- * Returns the default [CalendarLocale].
- */
-@Composable
-@ReadOnlyComposable
-@OptIn(ExperimentalMaterial3Api::class)
-internal actual fun defaultLocale(): CalendarLocale = java.util.Locale.getDefault()
+// TODO(b/237588251) remove this once the default includeFontPadding is false
+/* NOOP includeFontPadding doesn't exist on desktop */
+internal actual fun copyAndSetFontPadding(
+    style: TextStyle,
+    includeFontPadding: Boolean
+): TextStyle = style
