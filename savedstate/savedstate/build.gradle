@@ -5,12 +5,85 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KmpPlatformsKt
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+}
+
+def macEnabled = KmpPlatformsKt.enableMac(project)
+def linuxEnabled = KmpPlatformsKt.enableLinux(project)
+
+androidXMultiplatform {
+    android()
+    desktop()
+    mac()
+    linux()
+    ios()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(project(":lifecycle:lifecycle-common"))
+                api(project(":annotation:annotation"))
+            }
+        }
+        jvmMain {
+            dependsOn(commonMain)
+
+            dependencies {
+                api("androidx.arch.core:core-common:2.2.0")
+            }
+        }
+        desktopMain {
+            dependsOn(jvmMain)
+        }
+        androidMain {
+            dependsOn(jvmMain)
+        }
+        if (macEnabled || linuxEnabled) {
+            nativeMain {
+                dependsOn(commonMain)
+            }
+        }
+        if (macEnabled) {
+            darwinMain {
+                dependsOn(nativeMain)
+            }
+        }
+        if (linuxEnabled) {
+            linuxMain {
+                dependsOn(nativeMain)
+            }
+        }
+
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    def konanTargetFamily = target.konanTarget.family
+                    if (konanTargetFamily == Family.OSX || konanTargetFamily == Family.IOS) {
+                        dependsOn(darwinMain)
+                    } else if (konanTargetFamily == Family.LINUX) {
+                        dependsOn(linuxMain)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
+                    }
+                }
+                target.compilations["test"].defaultSourceSet {
+                    dependsOn(nativeTest)
+                }
+            }
+        }
+    }
 }
 
 android {
@@ -20,19 +93,19 @@ android {
     namespace "androidx.savedstate"
 }
 
-dependencies {
-    api("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.arch.core:core-common:2.2.0")
-    implementation("androidx.lifecycle:lifecycle-common:2.6.1")
-    api(libs.kotlinStdlib)
-
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.truth)
-}
+//dependencies {
+//    api("androidx.annotation:annotation:1.1.0")
+//    implementation("androidx.arch.core:core-common:2.2.0")
+//    implementation("androidx.lifecycle:lifecycle-common:2.6.1")
+//    api(libs.kotlinStdlib)
+//
+//    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
+//    androidTestImplementation(libs.testExtJunit)
+//    androidTestImplementation(libs.testCore)
+//    androidTestImplementation(libs.testRunner)
+//    androidTestImplementation(libs.testRules)
+//    androidTestImplementation(libs.truth)
+//}
 
 androidx {
     name = "Saved State"
