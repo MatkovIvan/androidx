@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,15 @@
 package androidx.compose.material3
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 
+/**
+ * It depends on the state of accessibility services to determine the current state of touch
+ * exploration services.
+ */
 @Composable
-internal actual fun getString(string: Strings): String {
-    return when (string) {
-        Strings.NavigationMenu -> "Navigation menu"
-        Strings.CloseDrawer -> "Close navigation menu"
-        Strings.CloseSheet -> "Close sheet"
-        Strings.DefaultErrorMessage -> "Invalid input"
-        Strings.SliderRangeStart -> "Range Start"
-        Strings.SliderRangeEnd -> "Range End"
-        Strings.Dialog -> "Dialog"
-        Strings.MenuExpanded -> "Expanded"
-        Strings.MenuCollapsed -> "Collapsed"
-        else -> ""
-    }
+internal actual fun touchExplorationState(): State<Boolean> {
+    return remember { derivedStateOf { false } }
 }
