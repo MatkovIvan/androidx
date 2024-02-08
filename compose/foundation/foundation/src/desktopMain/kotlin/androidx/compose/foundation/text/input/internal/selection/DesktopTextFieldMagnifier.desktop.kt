@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2.input.internal.selection
+package androidx.compose.foundation.text.input.internal.selection
 
-import androidx.compose.foundation.text2.input.internal.TextLayoutState
-import androidx.compose.foundation.text2.input.internal.TransformedTextFieldState
+import androidx.compose.foundation.text.input.internal.TextLayoutState
+import androidx.compose.foundation.text.input.internal.TransformedTextFieldState
 
 /**
  * There is no magnifier on Desktop. Return a noop [TextFieldMagnifierNode] implementation.
