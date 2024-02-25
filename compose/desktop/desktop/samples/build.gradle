@@ -23,6 +23,10 @@ plugins {
     id("kotlin-multiplatform")
 }
 
+repositories {
+    maven { url "https://jogamp.org/deployment/maven" }
+}
+
 dependencies {
 }
 
@@ -38,6 +42,10 @@ kotlin {
         jvmMain.dependencies {
             implementation(libs.skikoCurrentOs)
             implementation(project(":compose:desktop:desktop"))
+
+            implementation fileTree(dir: 'libs', include: ['*.jar'])
+            implementation("org.jogamp.gluegen:gluegen-rt-main:2.4.0")
+            implementation("org.jogamp.jogl:jogl-all-main:2.4.0")
         }
     }
 }
@@ -162,6 +170,23 @@ tasks.register('runFont', JavaExec) {
 
 tasks.register('run') {
     dependsOn("run1")
+}
+
+
+tasks.register('nasa', JavaExec) {
+    dependsOn(":compose:desktop:desktop:jar")
+    mainClass = "androidx.compose.desktop.examples.nasa.NasaMap_jvmKt"
+    systemProperty("skiko.fps.enabled", "true")
+    def compilation = kotlin.jvm().compilations["main"]
+    classpath =
+            compilation.output.allOutputs +
+                    compilation.runtimeDependencyFiles
+
+    jvmArgs += [
+            "--add-exports=java.base/java.lang=ALL-UNNAMED",
+            "--add-exports=java.desktop/sun.awt=ALL-UNNAMED",
+            "--add-exports=java.desktop/sun.java2d=ALL-UNNAMED"
+    ]
 }
 
 
