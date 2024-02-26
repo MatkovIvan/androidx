@@ -220,15 +220,7 @@ public actual open class ViewModelProvider private constructor(
                     return _instance!!
                 }
 
-            /**
-             * A [CreationExtras.Key] to get a key associated with a requested
-             * `ViewModel` from [CreationExtras]
-             *
-             *  `ViewModelProvider` automatically puts a key that was passed to
-             *  `ViewModelProvider.get(key, MyViewModel::class.java)`
-             *  or generated in `ViewModelProvider.get(MyViewModel::class.java)` to the `CreationExtras` that
-             *  are passed to [ViewModelProvider.Factory].
-             */
+            /** @see ViewModelProvider.VIEW_MODEL_KEY */
             @JvmField
             public val VIEW_MODEL_KEY: Key<String> = ViewModelProviders.ViewModelKey
         }
@@ -354,5 +346,8 @@ public actual open class ViewModelProvider private constructor(
             factory: Factory,
             extras: CreationExtras
         ): ViewModelProvider = ViewModelProvider(store, factory, extras)
+
+        @JvmField
+        public actual val VIEW_MODEL_KEY: Key<String> = ViewModelProviders.ViewModelKey
     }
 }
