@@ -16,7 +16,8 @@
 
 package androidx.collection.internal
 
-import kotlin.native.internal.createCleaner
+import kotlin.experimental.ExperimentalNativeApi
+import kotlin.native.ref.createCleaner
 import kotlinx.cinterop.Arena
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
@@ -45,7 +46,7 @@ internal actual class Lock actual constructor() {
     private val resources = Resources()
 
     @Suppress("unused") // The returned Cleaner must be assigned to a property
-    @ExperimentalStdlibApi
+    @OptIn(ExperimentalNativeApi::class)
     private val cleaner = createCleaner(resources, Resources::destroy)
 
     actual inline fun <T> synchronizedImpl(block: () -> T): T {

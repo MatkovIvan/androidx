@@ -18,6 +18,7 @@ package androidx.collection
 
 import androidx.collection.internal.EMPTY_INTS
 import androidx.collection.internal.EMPTY_OBJECTS
+import kotlin.jvm.JvmOverloads
 
 /**
  * ArraySet is a generic set data structure that is designed to be more memory efficient than a
@@ -44,7 +45,7 @@ import androidx.collection.internal.EMPTY_OBJECTS
  * will grow once items are added to it.
  */
 // JvmOverloads is required on constructor to match expect declaration
-public actual class ArraySet<E> @kotlin.jvm.JvmOverloads actual constructor(
+public actual class ArraySet<E> @JvmOverloads actual constructor(
     capacity: Int
 ) : MutableCollection<E>, MutableSet<E> {
 

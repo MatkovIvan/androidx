@@ -21,6 +21,9 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KmpPlatformsKt
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -31,6 +34,9 @@ plugins {
     id("AndroidXPlugin")
 }
 
+def jsEnabled = KmpPlatformsKt.enableJs(project)
+def wasmEnabled = KmpPlatformsKt.enableWasm(project)
+
 androidXMultiplatform {
     jvm {
         withJava()
@@ -38,6 +44,8 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
+    js()
+    wasm()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -50,7 +58,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
-                api("androidx.annotation:annotation:1.7.0")
+                api project(":annotation:annotation")
             }
         }
 
@@ -70,20 +78,16 @@ androidXMultiplatform {
             }
         }
 
-        nativeMain {
-            dependsOn(commonMain)
-        }
+        nonJvmMain.dependsOn(commonMain)
 
-        nativeTest {
-            dependsOn(commonTest)
-        }
+        nativeMain.dependsOn(nonJvmMain)
+        nativeTest.dependsOn(commonTest)
 
-        darwinMain {
-            dependsOn(nativeMain)
-        }
+        darwinMain.dependsOn(nativeMain)
+        linuxMain.dependsOn(nativeMain)
 
-        linuxMain {
-            dependsOn(nativeMain)
+        if (jsEnabled || wasmEnabled) {
+            webMain.dependsOn(nonJvmMain)
         }
 
         targets.all { target ->
@@ -101,6 +105,13 @@ androidXMultiplatform {
 
                 target.compilations["test"].defaultSourceSet {
                     dependsOn(nativeTest)
+                }
+            } else if (target.platformType in [
+                    KotlinPlatformType.js,
+                    KotlinPlatformType.wasm
+            ]) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(webMain)
                 }
             }
         }
@@ -125,6 +136,7 @@ dependencies {
 androidx {
     name = "collections"
     type = LibraryType.PUBLISHED_LIBRARY
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2018"
     description = "Standalone efficient collections."
 }
