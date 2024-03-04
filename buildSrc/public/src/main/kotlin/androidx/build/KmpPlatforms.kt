@@ -34,6 +34,7 @@ const val ENABLED_KMP_TARGET_PLATFORMS = "androidx.enabled.kmp.target.platforms"
 enum class PlatformGroup {
     JVM,
     JS,
+    WASM,
     MAC,
     LINUX,
     DESKTOP,
@@ -60,6 +61,7 @@ enum class PlatformIdentifier(
 ) {
     JVM("jvm", PlatformGroup.JVM),
     JS("js", PlatformGroup.JS),
+    WASM("wasm", PlatformGroup.WASM),
     ANDROID("android", PlatformGroup.JVM),
     ANDROID_NATIVE_ARM32("androidNativeArm32", PlatformGroup.ANDROID_NATIVE),
     ANDROID_NATIVE_ARM64("androidNativeArm64", PlatformGroup.ANDROID_NATIVE),
@@ -120,6 +122,8 @@ private open class KmpPlatformsExtension(project: Project) {
 }
 
 fun Project.enableJs(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.JS)
+
+fun Project.enableWasm(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.WASM)
 
 fun Project.enableAndroidNative(): Boolean =
     enabledKmpPlatforms.contains(PlatformGroup.ANDROID_NATIVE)
