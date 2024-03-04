@@ -21,6 +21,8 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
+    js()
+    wasm()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -78,7 +80,7 @@ androidx {
     name = "Annotation"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.ANNOTATION
-    kotlinTarget = KotlinTarget.KOTLIN_1_7
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2013"
     description = "Provides source annotations for tooling and readability."
 }
