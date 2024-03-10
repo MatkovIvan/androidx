@@ -153,6 +153,7 @@ internal class UIViewComposeSceneLayer(
     override var boundsInWindow: IntRect
         get() = mediator.getBoundsInPx()
         set(value) {
+            // TODO: Use RecordDrawRectSkikoViewDecorator to get real size instead
             mediator.setLayout(
                 SceneLayout.Bounds(rect = value)
             )

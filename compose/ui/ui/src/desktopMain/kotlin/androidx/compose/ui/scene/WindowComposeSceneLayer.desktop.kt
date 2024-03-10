@@ -23,25 +23,34 @@ import androidx.compose.ui.awt.toAwtColor
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.scene.skia.WindowSkiaLayerComponent
+import androidx.compose.ui.skiko.RecordDrawRectSkikoViewDecorator
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.layoutDirectionFor
 import androidx.compose.ui.window.sizeInPx
 import java.awt.Point
 import java.awt.Rectangle
+import java.awt.event.ComponentAdapter
+import java.awt.event.ComponentEvent
+import java.awt.event.WindowEvent
+import java.awt.event.WindowFocusListener
 import javax.swing.JDialog
 import javax.swing.JLayeredPane
 import kotlin.math.ceil
 import kotlin.math.floor
+import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.SkiaLayerAnalytics
 
 internal class WindowComposeSceneLayer(
@@ -49,7 +58,6 @@ internal class WindowComposeSceneLayer(
     private val skiaLayerAnalytics: SkiaLayerAnalytics,
     density: Density,
     layoutDirection: LayoutDirection,
-    focusable: Boolean,
     compositionContext: CompositionContext
 ) : DesktopComposeSceneLayer() {
     private val window get() = requireNotNull(composeContainer.window)
@@ -78,38 +86,54 @@ internal class WindowComposeSceneLayer(
         dialog.contentPane = it
     }
 
+    private val windowPositionListener = object : ComponentAdapter() {
+        override fun componentMoved(e: ComponentEvent?) {
+            onChangeWindowPosition()
+        }
+    }
+
+    private val dialogFocusListener = object : WindowFocusListener {
+        override fun windowGainedFocus(e: WindowEvent?) = Unit
+        override fun windowLostFocus(e: WindowEvent?) {
+            // Use this as trigger of outside click
+            outsidePointerCallback?.invoke(PointerEventType.Press)
+            outsidePointerCallback?.invoke(PointerEventType.Release)
+        }
+    }
+
     private var _mediator: ComposeSceneMediator? = null
+    private var outsidePointerCallback: ((eventType: PointerEventType) -> Unit)? = null
+
+    /**
+     * Bounds of real drawings from previous render.
+     */
+    private var visibleBounds = IntRect.Zero
 
     override var density: Density = density
         set(value) {
             field = value
-            // TODO: Pass it to mediator/scene
+            _mediator?.onChangeDensity(value)
         }
 
     override var layoutDirection: LayoutDirection = layoutDirection
         set(value) {
             field = value
-            // TODO: Pass it to mediator/scene
+            _mediator?.onChangeLayoutDirection(value)
         }
 
-    override var focusable: Boolean = focusable
-        set(value) {
-            field = value
-            // TODO: Pass it to mediator/scene
+    override var focusable
+        get() = true
+        set(_) {
+            // Ignore the value - window is always focusable
         }
 
+    // It shouldn't be used for setting canvas size - it will crop drawings outside
     override var boundsInWindow: IntRect = IntRect.Zero
         set(value) {
             field = value
 
-            val scaledRectangle = value.toAwtRectangle(density)
-            dialog.location = getDialogLocation(scaledRectangle.x, scaledRectangle.y)
-            dialog.setSize(scaledRectangle.width, scaledRectangle.height)
-            _mediator?.contentComponent?.setSize(scaledRectangle.width, scaledRectangle.height)
-            _mediator?.sceneBoundsInPx = Rect(
-                offset = -value.topLeft.toOffset(),
-                size = windowContainer.sizeInPx
-            )
+            // TODO: Remove once RecordDrawRectSkikoViewDecorator will work
+            onDrawRectChange(value.toRect())
         }
 
     override var compositionLocalContext: CompositionLocalContext?
@@ -117,10 +141,6 @@ internal class WindowComposeSceneLayer(
         set(value) { _mediator?.compositionLocalContext = value }
 
     override var scrimColor: Color? = null
-        set(value) {
-            field = value
-            // TODO: Draw scrim in the main window
-        }
 
     init {
         _mediator = ComposeSceneMediator(
@@ -140,6 +160,10 @@ internal class WindowComposeSceneLayer(
         dialog.location = getDialogLocation(0, 0)
         dialog.size = windowContainer.size
         dialog.isVisible = true
+        dialog.addWindowFocusListener(dialogFocusListener)
+
+        window.addComponentListener(windowPositionListener)
+
         composeContainer.attachLayer(this)
     }
 
@@ -148,6 +172,9 @@ internal class WindowComposeSceneLayer(
         _mediator?.dispose()
         _mediator = null
 
+        window.removeComponentListener(windowPositionListener)
+
+        dialog.removeWindowFocusListener(dialogFocusListener)
         dialog.dispose()
     }
 
@@ -168,27 +195,47 @@ internal class WindowComposeSceneLayer(
     override fun setOutsidePointerEventListener(
         onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)?
     ) {
-        // TODO
+        outsidePointerCallback = onOutsidePointerEvent
     }
 
     override fun calculateLocalPosition(positionInWindow: IntOffset): IntOffset {
         return positionInWindow
     }
 
-    override fun onChangeWindowSize() {
-        val scaledRectangle = boundsInWindow.toAwtRectangle(density)
+    override fun onChangeWindowPosition() {
+        val scaledRectangle = visibleBounds.toAwtRectangle(density)
         dialog.location = getDialogLocation(scaledRectangle.x, scaledRectangle.y)
+    }
+
+    override fun onChangeWindowSize() {
         windowContext.setContainerSize(windowContainer.sizeInPx)
 
         // Update compose constrains based on main window size
         _mediator?.sceneBoundsInPx = Rect(
-            offset = -boundsInWindow.topLeft.toOffset(),
+            offset = -visibleBounds.topLeft.toOffset(),
             size = windowContainer.sizeInPx
         )
     }
 
+    override fun onRenderOverlay(canvas: Canvas, width: Int, height: Int) {
+        val paint = scrimColor?.let { scrimColor ->
+            Paint().apply { color = scrimColor }.asFrameworkPaint()
+        } ?: return
+        canvas.drawRect(org.jetbrains.skia.Rect.makeWH(width.toFloat(), height.toFloat()), paint)
+    }
+
+    private fun onDrawRectChange(rect: Rect) {
+        val bounds = rect.roundToIntRect().translate(visibleBounds.topLeft)
+        setDialogBounds(bounds)
+    }
+
     private fun createSkiaLayerComponent(mediator: ComposeSceneMediator): SkiaLayerComponent {
-        return WindowSkiaLayerComponent(mediator, windowContext, skiaLayerAnalytics)
+        return WindowSkiaLayerComponent(
+            mediator = mediator,
+            windowContext = windowContext,
+            skikoView = mediator, // TODO: RecordDrawRectSkikoViewDecorator(mediator, ::onDrawRectChange),
+            skiaLayerAnalytics = skiaLayerAnalytics
+        )
     }
 
     private fun createComposeScene(mediator: ComposeSceneMediator): ComposeScene {
@@ -210,6 +257,18 @@ internal class WindowComposeSceneLayer(
         return Point(
             locationOnScreen.x + x,
             locationOnScreen.y + y
+        )
+    }
+
+    private fun setDialogBounds(bounds: IntRect) {
+        visibleBounds = bounds
+        val scaledRectangle = bounds.toAwtRectangle(density)
+        dialog.location = getDialogLocation(scaledRectangle.x, scaledRectangle.y)
+        dialog.setSize(scaledRectangle.width, scaledRectangle.height)
+        _mediator?.contentComponent?.setSize(scaledRectangle.width, scaledRectangle.height)
+        _mediator?.sceneBoundsInPx = Rect(
+            offset = -bounds.topLeft.toOffset(),
+            size = windowContainer.sizeInPx
         )
     }
 }

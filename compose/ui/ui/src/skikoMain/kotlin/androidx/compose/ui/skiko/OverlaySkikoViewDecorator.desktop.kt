@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.scene
+package androidx.compose.ui.skiko
 
 import org.jetbrains.skia.Canvas
+import org.jetbrains.skiko.SkikoView
 
-internal abstract class DesktopComposeSceneLayer : ComposeSceneLayer {
-    open fun onChangeWindowFocus() {
-    }
-
-    open fun onChangeWindowPosition() {
-    }
-
-    open fun onChangeWindowSize() {
-    }
-
-    open fun onRenderOverlay(canvas: Canvas, width: Int, height: Int) {
+internal class OverlaySkikoViewDecorator(
+    private val decorated: SkikoView,
+    private val onRenderOverlay: (canvas: Canvas, width: Int, height: Int) -> Unit
+) : SkikoView by decorated {
+    override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {
+        decorated.onRender(canvas, width, height, nanoTime)
+        onRenderOverlay(canvas, width, height)
     }
 }
