@@ -21,6 +21,8 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
+    js()
+    wasm()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 }

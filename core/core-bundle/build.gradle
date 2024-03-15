@@ -16,7 +16,6 @@
 
 
 import androidx.build.KmpPlatformsKt
-import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -39,6 +38,13 @@ androidXMultiplatform {
     wasm()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
+}
+
+kotlin {
+    js {
+        browser()
+    }
+    wasmJs()
 
     sourceSets {
         commonMain {
@@ -91,7 +97,6 @@ androidx {
     name = "androidx.core:core-bundle"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CORE
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2024"
     description = "Provides Bundle in Kotlin Multiplatform projects"
 }
