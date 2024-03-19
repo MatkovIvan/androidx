@@ -24,10 +24,13 @@ import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.saveable.autoSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotMutableState
+import androidx.core.bundle.Bundle
+import androidx.core.bundle.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import kotlin.jvm.JvmName
 import kotlin.properties.PropertyDelegateProvider
@@ -49,11 +52,26 @@ import kotlin.reflect.KProperty
  * @sample androidx.lifecycle.viewmodel.compose.samples.SnapshotStateViewModel
  */
 @SavedStateHandleSaveableApi
-expect fun <T : Any> SavedStateHandle.saveable(
+fun <T : Any> SavedStateHandle.saveable(
     key: String,
-    saver: Saver<T, out Any> = autoSaver(),
-    init: () -> T,
-): T
+    saver: Saver<T, out Any>,
+    init: () -> T
+): T {
+    @Suppress("UNCHECKED_CAST")
+    saver as Saver<T, Any>
+    // value is restored using the SavedStateHandle or created via [init] lambda
+    @Suppress("DEPRECATION") // Bundle.get has been deprecated in API 31
+    val value = get<Bundle?>(key)?.get("value")?.let(saver::restore) ?: init()
+
+    // Hook up saving the state to the SavedStateHandle
+    setSavedStateProvider(key) {
+        bundleOf("value" to with(saver) {
+            SaverScope(SavedStateHandle.Companion::validateValue).save(value)
+        })
+    }
+    return value
+}
+
 
 /**
  * Inter-opt between [SavedStateHandle] and [Saver] so that any state holder that is
