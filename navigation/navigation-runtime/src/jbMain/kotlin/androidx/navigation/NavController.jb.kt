@@ -590,7 +590,10 @@ public actual open class NavController {
                         upwardStateTransitions[entry] = Lifecycle.State.STARTED
                     }
                 }
-                if (nextStarted.firstOrNull()?.route == destination.route) nextStarted.removeFirst()
+                if (nextStarted.isNotEmpty() &&
+                    nextStarted.firstOrNull()?.route == destination.route) {
+                    nextStarted.removeFirst()
+                }
                 nextResumed = nextResumed.parent
             } else if (nextStarted.isNotEmpty() && destination.route == nextStarted.first().route) {
                 val started = nextStarted.removeFirst()
@@ -1015,7 +1018,7 @@ public actual open class NavController {
         // equality to ensure that same destinations with a parent that is not this _graph
         // will also have their parents added to the hierarchy.
         destination = if (hierarchy.isEmpty()) newDest else hierarchy.first().destination
-        while (destination != null && findDestination(destination.route!!) !== destination) {
+        while (destination?.route != null && findDestination(destination.route!!) !== destination) {
             val parent = destination.parent
             if (parent != null) {
                 val args = if (finalArgs?.isEmpty() == true) null else finalArgs
@@ -1071,9 +1074,9 @@ public actual open class NavController {
         // Link the newly added hierarchy and entry with the parent NavBackStackEntry
         // so that we can track how many destinations are associated with each NavGraph
         (hierarchy + backStackEntry).forEach {
-            val parent = it.destination.parent
-            if (parent != null) {
-                linkChildToParent(it, getBackStackEntry(parent.route!!))
+            val parentRoute = it.destination.parent?.route
+            if (parentRoute != null) {
+                linkChildToParent(it, getBackStackEntry(parentRoute))
             }
         }
     }
