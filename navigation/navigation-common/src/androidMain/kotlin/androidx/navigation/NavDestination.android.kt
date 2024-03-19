@@ -304,7 +304,7 @@ public actual open class NavDestination actual constructor(
      * @see NavController.navigate
      * @see NavDestination.addDeepLink
      */
-    public fun addDeepLink(uriPattern: String) {
+    public actual fun addDeepLink(uriPattern: String) {
         addDeepLink(NavDeepLink.Builder().setUriPattern(uriPattern).build())
     }
 
@@ -349,7 +349,7 @@ public actual open class NavDestination actual constructor(
      * @see NavController.handleDeepLink
      * @see NavController.navigate
      */
-    public fun addDeepLink(navDeepLink: NavDeepLink) {
+    public actual fun addDeepLink(navDeepLink: NavDeepLink) {
         val missingRequiredArguments = _arguments.missingRequiredArguments { key ->
             key !in navDeepLink.argumentsNames
         }

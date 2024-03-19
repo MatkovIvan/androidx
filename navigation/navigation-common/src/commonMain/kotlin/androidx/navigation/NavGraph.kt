@@ -27,8 +27,14 @@ import kotlin.jvm.JvmStatic
  *
  * Construct a new NavGraph. This NavGraph is not valid until you
  * [add a destination][addDestination] and [set the starting destination][setStartDestination].
+ *
+ * @param navGraphNavigator The [NavGraphNavigator] which this destination will be associated
+ *                          with. Generally retrieved via a
+ *                          [NavController]'s[NavigatorProvider.getNavigator] method.
  */
-public expect open class NavGraph : NavDestination, Iterable<NavDestination> {
+public expect open class NavGraph(
+    navGraphNavigator: Navigator<out NavGraph>
+) : NavDestination, Iterable<NavDestination> {
 
     /**
      * Adds a destination to this NavGraph. The destination must have a route set.

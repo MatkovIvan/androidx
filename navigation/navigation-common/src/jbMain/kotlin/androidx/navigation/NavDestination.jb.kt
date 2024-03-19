@@ -28,6 +28,7 @@ public actual open class NavDestination actual constructor(
         public set
 
     public actual var label: CharSequence? = null
+    private val deepLinks = mutableListOf<NavDeepLink>()
 
     private var _arguments: MutableMap<String, NavArgument> = mutableMapOf()
 
@@ -40,11 +41,20 @@ public actual open class NavDestination actual constructor(
         set(route) {
             require(route == null || route.isNotBlank()) { "Cannot have an empty route" }
             field = route
+            deepLinks.remove(deepLinks.firstOrNull { it.uriPattern == field })
         }
 
     public actual open val displayName: String
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get() = navigatorName
+
+    public actual fun addDeepLink(uriPattern: String) {
+        addDeepLink(NavDeepLink.Builder().setUriPattern(uriPattern).build())
+    }
+
+    public actual fun addDeepLink(navDeepLink: NavDeepLink) {
+        deepLinks.add(navDeepLink)
+    }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual fun hasRoute(route: String, arguments: Bundle?): Boolean {
@@ -100,6 +110,8 @@ public actual open class NavDestination actual constructor(
         if (this === other) return true
         if (other == null || other !is NavDestination) return false
 
+        val equalDeepLinks = deepLinks == other.deepLinks
+
         val equalArguments = _arguments.size == other._arguments.size &&
             _arguments.asSequence().all {
                 other._arguments.containsKey(it.key) &&
@@ -107,11 +119,17 @@ public actual open class NavDestination actual constructor(
             }
 
         return route == other.route &&
+            equalDeepLinks &&
             equalArguments
     }
 
     override fun hashCode(): Int {
         var result = route.hashCode()
+        deepLinks.forEach {
+            result = 31 * result + it.uriPattern.hashCode()
+            result = 31 * result + it.action.hashCode()
+            result = 31 * result + it.mimeType.hashCode()
+        }
         _arguments.keys.forEach {
             result = 31 * result + it.hashCode()
             result = 31 * result + _arguments[it].hashCode()

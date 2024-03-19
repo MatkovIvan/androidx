@@ -82,6 +82,81 @@ public expect open class NavDestination(
         get
 
     /**
+     * Add a deep link to this destination. Matching Uris sent to
+     * [NavController.handleDeepLink] or [NavController.navigate] will
+     * trigger navigating to this destination.
+     *
+     * In addition to a direct Uri match, the following features are supported:
+     *
+     * - Uris without a scheme are assumed as http and https. For example,
+     * `www.example.com` will match `http://www.example.com` and
+     * `https://www.example.com`.
+     * - Placeholders in the form of `{placeholder_name}` matches 1 or more
+     * characters. The parsed value of the placeholder will be available in the arguments
+     * [Bundle] with a key of the same name. For example,
+     * `http://www.example.com/users/{id}` will match
+     * `http://www.example.com/users/4`.
+     * - The `.*` wildcard can be used to match 0 or more characters.
+     *
+     * These Uris can be declared in your navigation XML files by adding one or more
+     * `<deepLink app:uri="uriPattern" />` elements as
+     * a child to your destination.
+     *
+     * Deep links added in navigation XML files will automatically replace instances of
+     * `${applicationId}` with the applicationId of your app.
+     * Programmatically added deep links should use [Context.getPackageName] directly
+     * when constructing the uriPattern.
+     * @param uriPattern The uri pattern to add as a deep link
+     * @see NavController.handleDeepLink
+     * @see NavController.navigate
+     * @see NavDestination.addDeepLink
+     */
+    public fun addDeepLink(uriPattern: String)
+
+    /**
+     * Add a deep link to this destination. Uris that match the given [NavDeepLink] uri
+     * sent to [NavController.handleDeepLink] or
+     * [NavController.navigate] will trigger navigating to this
+     * destination.
+     *
+     * In addition to a direct Uri match, the following features are supported:
+     *
+     * Uris without a scheme are assumed as http and https. For example,
+     * `www.example.com` will match `http://www.example.com` and
+     * `https://www.example.com`.
+     * Placeholders in the form of `{placeholder_name}` matches 1 or more
+     * characters. The String value of the placeholder will be available in the arguments
+     * [Bundle] with a key of the same name. For example,
+     * `http://www.example.com/users/{id}` will match
+     * `http://www.example.com/users/4`.
+     * The `.*` wildcard can be used to match 0 or more characters.
+     *
+     * These Uris can be declared in your navigation XML files by adding one or more
+     * `<deepLink app:uri="uriPattern" />` elements as
+     * a child to your destination.
+     *
+     * Custom actions and mimetypes are also supported by [NavDeepLink] and can be declared
+     * in your navigation XML files by adding
+     * `<app:action="android.intent.action.SOME_ACTION" />` or
+     * `<app:mimetype="type/subtype" />` as part of your deepLink declaration.
+     *
+     * Deep link Uris, actions, and mimetypes added in navigation XML files will automatically
+     * replace instances of `${applicationId}` with the applicationId of your app.
+     * Programmatically added deep links should use [Context.getPackageName] directly
+     * when constructing the uriPattern.
+     *
+     * When matching deep links for calls to [NavController.handleDeepLink] or
+     * [NavController.navigate] the order of precedence is as follows:
+     * the deep link with the most matching arguments will be chosen, followed by the deep link
+     * with a matching action, followed by the best matching mimeType (e.i. when matching
+     * mimeType image/jpg: image/ * > *\/jpg > *\/ *).
+     * @param navDeepLink The NavDeepLink to add as a deep link
+     * @see NavController.handleDeepLink
+     * @see NavController.navigate
+     */
+    public fun addDeepLink(navDeepLink: NavDeepLink)
+
+    /**
      * Returns true if the [NavBackStackEntry.destination] contains the route.
      *
      * The route may be either:

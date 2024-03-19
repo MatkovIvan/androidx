@@ -19,8 +19,9 @@ package androidx.navigation
 import androidx.annotation.RestrictTo
 import kotlin.jvm.JvmStatic
 
-public actual open class NavGraph(navigatorName: String) :
-    NavDestination(navigatorName), Iterable<NavDestination> {
+public actual open class NavGraph actual constructor(
+    navGraphNavigator: Navigator<out NavGraph>
+) : NavDestination(navGraphNavigator), Iterable<NavDestination> {
 
     public val nodes = mutableMapOf<String, NavDestination>()
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

@@ -44,8 +44,9 @@ import java.lang.StringBuilder
  *                          with. Generally retrieved via a
  *                          [NavController]'s[NavigatorProvider.getNavigator] method.
  */
-public actual open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
-    NavDestination(navGraphNavigator), Iterable<NavDestination> {
+public actual open class NavGraph actual constructor(
+    navGraphNavigator: Navigator<out NavGraph>
+) : NavDestination(navGraphNavigator), Iterable<NavDestination> {
 
     public val nodes: SparseArrayCompat<NavDestination> = SparseArrayCompat()
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
