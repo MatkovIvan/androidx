@@ -666,10 +666,7 @@ public actual open class NavController {
             onGraphCreated(startDestinationArgs)
         } else {
             // first we update _graph with new instances from graph
-            _graph?.let {
-                it.nodes.clear()
-                it.nodes.putAll(graph.nodes)
-            }
+            _graph?.nodes?.putAll(graph.nodes)
             // then we update backstack with the new instances
             backQueue.forEach { entry ->
                 // we will trace this hierarchy in new graph to get new destination instance
