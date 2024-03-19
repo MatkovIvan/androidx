@@ -55,6 +55,7 @@ kotlin {
                 api project(":compose:ui:ui")
 
                 implementation(libs.kotlinStdlib)
+                implementation project(":core:core-bundle")
             }
         }
 
