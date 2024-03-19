@@ -45,7 +45,11 @@ actual fun NavBackStackEntry.LocalOwnersProvider(
 
 @Composable
 private fun SaveableStateHolder.SaveableStateProvider(content: @Composable () -> Unit) {
-    val viewModel = viewModel<BackStackEntryIdViewModel>(
+    val viewModel = viewModel(
+        // TODO investigate why inline with refined type triggers
+        //  "Compilation failed: Symbol for ... is unbound"
+        //  https://github.com/JetBrains/compose-multiplatform/issues/3147
+        BackStackEntryIdViewModel::class,
         factory = viewModelFactory {
             initializer { BackStackEntryIdViewModel(createSavedStateHandle()) }
         }
