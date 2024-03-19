@@ -16,6 +16,7 @@
 
 
 import androidx.build.AndroidXComposePlugin
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -79,11 +80,21 @@ kotlin {
         }
 
         jbMain.dependsOn(commonMain)
+        desktopMain.dependsOn(jvmMain)
+        nativeMain.dependsOn(jbMain)
+        webMain.dependsOn(jbMain)
 
         targets.all { target ->
-            if (target.platformType !in [KotlinPlatformType.androidJvm, KotlinPlatformType.common]) {
+            if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
-                    dependsOn(jbMain)
+                    dependsOn(nativeMain)
+                }
+            } else if (target.platformType in [
+                    KotlinPlatformType.js,
+                    KotlinPlatformType.wasm
+            ]) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(webMain)
                 }
             }
         }

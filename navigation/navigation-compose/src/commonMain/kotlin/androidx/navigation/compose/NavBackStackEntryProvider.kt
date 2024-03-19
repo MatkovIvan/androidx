@@ -35,18 +35,7 @@ import androidx.navigation.NavBackStackEntry
  * @param content The content [Composable]
  */
 @Composable
-public fun NavBackStackEntry.LocalOwnersProvider(
+public expect fun NavBackStackEntry.LocalOwnersProvider(
     saveableStateHolder: SaveableStateHolder,
     content: @Composable () -> Unit
-) {
-    CompositionLocalProvider(
-        LocalViewModelStoreOwner provides this,
-        LocalLifecycleOwner provides this,
-        LocalSavedStateRegistryOwner provides this
-    ) {
-        saveableStateHolder.SaveableStateProvider(content)
-    }
-}
-
-@Composable
-internal expect fun SaveableStateHolder.SaveableStateProvider(content: @Composable () -> Unit)
+)
