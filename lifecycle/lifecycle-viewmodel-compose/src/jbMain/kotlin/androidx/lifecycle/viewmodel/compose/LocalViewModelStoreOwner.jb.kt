@@ -17,9 +17,13 @@
 package androidx.lifecycle.viewmodel.compose
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 
-@Composable
-internal actual fun findViewModelStoreOwner(): ViewModelStoreOwner? {
-    TODO("Not yet implemented")
+private object GlobalViewModelStoreOwner: ViewModelStoreOwner {
+    override val viewModelStore: ViewModelStore = ViewModelStore()
 }
+
+@Composable
+internal actual fun findViewModelStoreOwner(): ViewModelStoreOwner? =
+    GlobalViewModelStoreOwner
