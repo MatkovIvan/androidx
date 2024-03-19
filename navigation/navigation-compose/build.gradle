@@ -80,7 +80,7 @@ kotlin {
         }
 
         jbMain.dependsOn(commonMain)
-        desktopMain.dependsOn(jvmMain)
+        desktopMain.dependsOn(jbMain)
         nativeMain.dependsOn(jbMain)
         webMain.dependsOn(jbMain)
 
