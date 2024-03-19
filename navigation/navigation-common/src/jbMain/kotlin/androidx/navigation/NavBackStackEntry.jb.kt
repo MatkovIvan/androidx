@@ -65,7 +65,7 @@ public actual class NavBackStackEntry private constructor(
      * The unique ID that serves as the identity of this entry
      * @return the unique ID of this entry
      */
-    public actual val id: String = rundomUUID(),
+    public actual val id: String = randomId(),
     private val savedState: Bundle? = null
 ) : LifecycleOwner,
     ViewModelStoreOwner,
@@ -92,7 +92,7 @@ public actual class NavBackStackEntry private constructor(
             arguments: Bundle? = null,
             hostLifecycleState: Lifecycle.State = Lifecycle.State.CREATED,
             viewModelStoreProvider: NavViewModelStoreProvider? = null,
-            id: String = rundomUUID(),
+            id: String = randomUUID(),
             savedState: Bundle? = null
         ): NavBackStackEntry = NavBackStackEntry(
             destination = destination,
@@ -102,6 +102,9 @@ public actual class NavBackStackEntry private constructor(
             id = id,
             savedState = savedState
         )
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun randomId(): String = randomUUID()
     }
 
     private var _lifecycle = LifecycleRegistry(this)
@@ -290,7 +293,7 @@ public actual class NavBackStackEntry private constructor(
 }
 
 @OptIn(ExperimentalStdlibApi::class)
-private fun rundomUUID(): String {
+private fun randomUUID(): String {
     val bytes = Random.nextBytes(16).also {
         it[6] = it[6] and 0x0f // clear version
         it[6] = it[6] or 0x40 // set to version 4
