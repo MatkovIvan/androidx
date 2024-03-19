@@ -23,6 +23,7 @@
  */
 
 
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
@@ -33,7 +34,10 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     alias(libs.plugins.kotlinSerialization)
+    id("JetbrainsAndroidXPlugin")
 }
+
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
 def jsEnabled = KmpPlatformsKt.enableJs(project)
 def wasmEnabled = KmpPlatformsKt.enableWasm(project)

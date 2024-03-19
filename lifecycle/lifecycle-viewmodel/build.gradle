@@ -22,6 +22,7 @@
  * modifying its settings.
  */
 
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
@@ -32,7 +33,10 @@ import org.jetbrains.kotlin.konan.target.Family
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("JetbrainsAndroidXPlugin")
 }
+
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
 
 def jsEnabled = KmpPlatformsKt.enableJs(project)
 def wasmEnabled = KmpPlatformsKt.enableWasm(project)
