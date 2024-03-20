@@ -23,12 +23,9 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SizeTransform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
-import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
 import androidx.navigation.compose.ComposeNavigator.Destination
 import kotlin.jvm.JvmSuppressWildcards
