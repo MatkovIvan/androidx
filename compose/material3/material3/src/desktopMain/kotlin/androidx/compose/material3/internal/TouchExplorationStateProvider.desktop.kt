@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 
 /**
- * Returns the default [CalendarLocale].
+ * It depends on the state of accessibility services to determine the current state of touch
+ * exploration services.
  */
 @Composable
-@ReadOnlyComposable
-@OptIn(ExperimentalMaterial3Api::class)
-internal actual fun defaultLocale(): CalendarLocale = java.util.Locale.getDefault()
+internal actual fun touchExplorationState(): State<Boolean> {
+    return remember { mutableStateOf(false) }
+}
