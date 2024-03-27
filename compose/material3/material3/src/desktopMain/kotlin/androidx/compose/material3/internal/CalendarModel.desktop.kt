@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
 /**
  * Returns a [CalendarModel] to be used by the date picker.
