@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.navigation.compose
+package androidx.compose.ui.node
 
 // TODO: https://youtrack.jetbrains.com/issue/COMPOSE-1286/Properly-implement-WeakReference-on-Web
-internal actual class WeakReference<T : Any> actual constructor(reference: T) {
-    private var reference: T? = reference
-    actual fun get(): T? = reference
-    actual fun clear() { reference = null }
+actual class WeakReference<T : Any> actual constructor(referent: T) {
+    private var instance: T? = null
+
+    actual fun clear() {
+        instance = null
+    }
+
+    actual fun get(): T? = instance
 }
