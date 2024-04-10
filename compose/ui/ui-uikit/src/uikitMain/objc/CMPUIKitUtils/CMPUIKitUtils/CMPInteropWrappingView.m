@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text.selection
+#import "CMPInteropWrappingView.h"
 
-import androidx.compose.ui.Modifier
+@implementation CMPInteropWrappingView
 
-/**
- * Magnification is not supported on desktop.
- */
-internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManager): Modifier = this
+- (__nullable id)accessibilityContainer {
+    CMP_MUST_BE_OVERRIDED_INVARIANT_VIOLATION
+}
+
+@end
