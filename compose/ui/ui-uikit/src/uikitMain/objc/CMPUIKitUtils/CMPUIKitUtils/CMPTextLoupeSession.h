@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.uikit
+#import <UIKit/UIKit.h>
 
-import androidx.compose.runtime.InternalComposeApi
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.unit.dp
+NS_ASSUME_NONNULL_BEGIN
 
+/// Wrapper class around UITextLoupeSession that prevents class type loading for iOS < 17.0
+API_AVAILABLE(ios(17.0))
+@interface CMPTextLoupeSession : NSObject
 
-/**
- * Composition local for height that is overlapped with keyboard over Compose view.
- */
-@InternalComposeApi
-val LocalKeyboardOverlapHeight = compositionLocalOf { 0.dp }
+- (id)init NS_UNAVAILABLE;
+
++ (nullable instancetype)beginLoupeSessionAtPoint:(CGPoint)point
+                          fromSelectionWidgetView:(nullable UIView *)selectionWidget
+                                           inView:(UIView *)interactionView;
+
+- (void)moveToPoint:(CGPoint)point withCaretRect:(CGRect)caretRect trackingCaret:(BOOL)tracksCaret;
+
+- (void)invalidate;
+
+@end
+
+NS_ASSUME_NONNULL_END
