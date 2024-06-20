@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,12 @@
 
 package androidx.compose.runtime
 
-import androidx.compose.runtime.internal.ComposableLambda
-
-actual internal fun invokeComposable(composer: Composer, composable: @Composable () -> Unit) {
-    @Suppress("UNCHECKED_CAST")
-    val realFn = composable as Function2<Composer, Int, Unit>
-    realFn(composer, 1)
-}
-
-actual internal fun <T> invokeComposableForResult(
-    composer: Composer,
-    composable: @Composable () -> T
-): T {
-    @Suppress("UNCHECKED_CAST")
-    val realFn = composable as Function2<Composer, Int, T>
-    return realFn(composer, 1)
-}
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER
+)
+actual annotation class TestOnly

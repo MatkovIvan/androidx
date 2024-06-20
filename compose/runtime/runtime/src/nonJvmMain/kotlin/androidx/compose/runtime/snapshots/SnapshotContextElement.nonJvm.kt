@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.compose.runtime
+package androidx.compose.runtime.snapshots
 
-// todo: trace?
-internal actual object Trace {
-    actual fun beginSection(name: String): Any? {
-        return null
+import androidx.compose.runtime.ExperimentalComposeApi
+import kotlin.coroutines.CoroutineContext
+
+@OptIn(ExperimentalComposeApi::class)
+internal actual class SnapshotContextElementImpl actual constructor(
+    snapshot: Snapshot
+) : SnapshotContextElement {
+
+    init {
+        error("provide SnapshotContextElementImpl when coroutines lib has necessary APIs")
     }
 
-    actual fun endSection(token: Any?) {
-    }
+    override val key: CoroutineContext.Key<*>
+        get() = SnapshotContextElement
 }
