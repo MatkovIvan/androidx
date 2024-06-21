@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
-import kotlinx.atomicfu.atomic
+import androidx.compose.material3.CalendarLocale
+import java.util.Locale
+import java.util.TimeZone
 
-internal actual class AtomicReference<V> actual constructor(value: V) {
-    private val delegate = atomic(value)
-    actual fun get() = delegate.value
-    actual fun set(value: V) {
-        delegate.value = value
-    }
-    actual fun getAndSet(value: V) = delegate.getAndSet(value)
-    actual fun compareAndSet(expect: V, newValue: V) = delegate.compareAndSet(expect, newValue)
+actual fun calendarLocale(language : String, country : String) : CalendarLocale {
+    return Locale(language, country)
+}
+
+actual val supportsDateSkeleton: Boolean
+    get() = false
+
+actual fun setTimeZone(id: String) {
+    TimeZone.setDefault(TimeZone.getTimeZone(id))
+}
+
+actual fun getTimeZone(): String {
+    return TimeZone.getDefault().id
 }

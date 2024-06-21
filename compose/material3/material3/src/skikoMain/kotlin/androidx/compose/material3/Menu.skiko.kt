@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,6 @@
 
 package androidx.compose.material3
 
-import java.util.Locale
-import java.util.TimeZone
+import androidx.compose.ui.window.PopupProperties
 
-actual fun calendarLocale(language : String, country : String) : CalendarLocale{
-    return Locale(language, country)
-}
-
-actual val supportsDateSkeleton: Boolean
-    get() = false
-
-actual fun setTimeZone(id: String) {
-    TimeZone.setDefault(TimeZone.getTimeZone(id))
-}
-
-actual fun getTimeZone(): String {
-    return TimeZone.getDefault().id
-}
+internal actual val DefaultMenuProperties = PopupProperties(focusable = true)

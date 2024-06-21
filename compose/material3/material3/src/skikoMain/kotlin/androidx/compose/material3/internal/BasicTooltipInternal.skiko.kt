@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
+import androidx.compose.runtime.Composable
 
-@ExperimentalMaterial3Api
-internal actual fun createCalendarModel(locale: CalendarLocale): CalendarModel =
-    KotlinxDatetimeCalendarModel(locale)
-
-
-@ExperimentalMaterial3Api
-actual fun formatWithSkeleton(
-    utcTimeMillis: Long,
-    skeleton: String,
-    locale: CalendarLocale,
-    cache: MutableMap<String, Any>
-): String {
-    return PlatformDateFormat(locale).formatWithSkeleton(
-        utcTimeMillis = utcTimeMillis,
-        skeleton = skeleton,
-    )
+// TODO(https://github.com/JetBrains/compose-multiplatform/issues/3360) Support localization
+//  the current values are copied from compose\foundation\foundation\src\androidMain\res\values-en-rGB\strings.xml
+internal actual object BasicTooltipStrings {
+    @Composable
+    actual fun label() = "show tooltip"
+    @Composable
+    actual fun description() = "tooltip"
 }
