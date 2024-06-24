@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.CalendarLocale
 
-// TODO upstream to commonMain
-@Composable
-internal actual fun WindowInsets.Companion.systemBarsForVisualComponents(): WindowInsets =
-    WindowInsets.systemBars
+expect fun calendarLocale(language : String, country : String) : CalendarLocale

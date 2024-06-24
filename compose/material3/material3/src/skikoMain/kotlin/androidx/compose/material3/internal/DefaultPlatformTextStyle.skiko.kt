@@ -14,31 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
-internal expect class PlatformDateFormat constructor(locale: CalendarLocale) {
+import androidx.compose.ui.text.PlatformTextStyle
 
-
-    val firstDayOfWeek : Int
-
-    /**
-     * Localized by platform weekdays
-     * */
-    val weekdayNames: List<Pair<String, String>>
-
-    fun formatWithPattern(
-        utcTimeMillis: Long,
-        pattern: String,
-    ): String
-
-    fun formatWithSkeleton(
-        utcTimeMillis: Long,
-        skeleton: String,
-    ): String
-
-    fun parse(date: String, pattern: String): CalendarDate?
-
-    fun getDateInputFormat(): DateInputFormat
-
-    fun is24HourFormat() : Boolean
-}
+internal actual fun defaultPlatformTextStyle(): PlatformTextStyle? = null

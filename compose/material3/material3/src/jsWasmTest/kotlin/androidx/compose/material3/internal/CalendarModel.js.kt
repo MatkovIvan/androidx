@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
-expect fun calendarLocale(language : String, country : String) : CalendarLocale
+import androidx.compose.material3.CalendarLocale
+import androidx.compose.ui.text.intl.Locale
+
+actual fun calendarLocale(language: String, country : String): CalendarLocale {
+    return Locale("$language-$country")
+}
+
+actual val supportsDateSkeleton: Boolean
+    get() = true
+
+// not implemented
+actual fun setTimeZone(id: String) {
+}
+
+// not implemented
+actual fun getTimeZone(): String {
+    return ""
+}

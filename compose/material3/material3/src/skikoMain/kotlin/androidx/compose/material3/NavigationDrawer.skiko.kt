@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,13 @@
 
 package androidx.compose.material3
 
-import androidx.compose.ui.text.intl.Locale
+import androidx.compose.runtime.Composable
 
-actual fun calendarLocale(language: String, country : String): CalendarLocale {
-    return Locale("$language-$country")
-}
+// TODO https://youtrack.jetbrains.com/issue/COMPOSE-1301/Implement-DrawerPredictiveBackHandler
 
-actual val supportsDateSkeleton: Boolean
-    get() = true
-
-// not implemented
-actual fun setTimeZone(id: String) {
-}
-
-// not implemented
-actual fun getTimeZone(): String {
-    return ""
+@Composable
+internal actual fun DrawerPredictiveBackHandler(
+    drawerState: DrawerState,
+    content: @Composable (DrawerPredictiveBackState) -> Unit
+) {
 }

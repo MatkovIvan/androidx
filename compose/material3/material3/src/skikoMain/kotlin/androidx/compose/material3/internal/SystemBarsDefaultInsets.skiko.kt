@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.remember
 
-/**
- * It depends on the state of accessibility services to determine the current state of touch
- * exploration services.
- */
+// TODO upstream to commonMain
 @Composable
-internal actual fun touchExplorationState(): State<Boolean> {
-    return remember { derivedStateOf { false } }
-}
+internal actual fun WindowInsets.Companion.systemBarsForVisualComponents(): WindowInsets =
+    WindowInsets.systemBars
