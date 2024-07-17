@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package androidx.compose.foundation.text.input.internal
 
-// TODO: b/168524931 - should this depend on the input device?
-internal actual val TapIndicationDelay: Long = 0L
+import androidx.compose.ui.text.intl.PlatformLocale
+import androidx.compose.ui.text.style.TextDirection
+
+internal actual fun resolveTextDirectionForKeyboardTypePhone(
+    locale: PlatformLocale
+): TextDirection {
+    // TODO implement resolveTextDirectionForKeyboardTypePhone
+    //  Added in a0f82d5c7de2155a1f144bd606d9eea32659a9d7
+    return TextDirection.Ltr
+}
