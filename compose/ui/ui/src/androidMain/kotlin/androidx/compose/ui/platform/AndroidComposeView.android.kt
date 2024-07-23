@@ -18,6 +18,7 @@
 
 package androidx.compose.ui.platform
 
+import android.view.KeyEvent as AndroidKeyEvent
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Point
@@ -35,7 +36,6 @@ import android.util.LongSparseArray
 import android.util.SparseArray
 import android.view.DragEvent
 import android.view.FocusFinder
-import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
@@ -117,6 +117,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.setFrom
 import androidx.compose.ui.graphics.toAndroidRect
+import androidx.compose.ui.graphics.toComposeIntRect
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.PlatformHapticFeedback
@@ -208,6 +209,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
+import androidx.window.layout.WindowMetricsCalculator
 import java.lang.reflect.Method
 import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
@@ -574,7 +576,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     // on a different position, but also in the position of each of the grandparents as all these
     // positions add up to final global position)
     private val globalLayoutListener =
-        ViewTreeObserver.OnGlobalLayoutListener { updatePositionCacheAndDispatch() }
+        ViewTreeObserver.OnGlobalLayoutListener {
+            updatePositionCacheAndDispatch()
+            updateWindowMetrics()
+        }
 
     // executed when a scrolling container like ScrollView of RecyclerView performed the scroll,
     // this could affect our global position
@@ -2223,6 +2228,18 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     private fun recalculateWindowViewTransforms() {
         matrixToWindow.calculateMatrixToWindow(this, viewToWindowMatrix)
         viewToWindowMatrix.invertTo(windowToViewMatrix)
+    }
+
+    private fun updateWindowMetrics() {
+        val metrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(context)
+        _windowInfo.windowBounds = metrics.bounds.toComposeIntRect()
+        // TODO: Make sure that offset of [windowInfo.windowBounds] is equal to [windowPosition]
+
+        // Backport of metrics.getWindowInsets() is experimental, so getting it via the old way
+        _windowInfo.availableContentBounds = Rect().let {
+            rootView.getWindowVisibleDisplayFrame(it)
+            it.toComposeIntRect()
+        }
     }
 
     override fun onCheckIsTextEditor(): Boolean {

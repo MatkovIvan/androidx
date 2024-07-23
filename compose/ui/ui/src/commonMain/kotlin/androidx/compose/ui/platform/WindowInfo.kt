@@ -24,6 +24,10 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.input.pointer.EmptyPointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 
 /** Provides information about the Window that is hosting this compose hierarchy. */
 @Stable
@@ -41,6 +45,32 @@ interface WindowInfo {
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     val keyboardModifiers: PointerKeyboardModifiers
         get() = WindowInfoImpl.GlobalKeyboardModifiers.value
+
+    /**
+     * The available area (in pixels) where content can be placed and remain visible to users.
+     * It reports the window bounds without all system bar areas relative to the window.
+     */
+    val availableContentBounds: IntRect
+        get() = windowBounds
+
+    /**
+     * The bounds of the window in pixels relative to the screen.
+     *
+     * @see LayoutCoordinates.positionOnScreen
+     */
+    val windowBounds: IntRect
+        get() = throw UnsupportedOperationException(
+            "windowBounds is not implemented on this WindowInfo"
+        )
+
+    /** Size of the window's content container in pixels. */
+    @Deprecated(
+        message = "Maintained for binary compatibility",
+        replaceWith = ReplaceWith("windowBounds.size"),
+        level = DeprecationLevel.HIDDEN
+    )
+    val containerSize: IntSize
+        get() = windowBounds.size
 }
 
 @Composable
@@ -54,18 +84,32 @@ internal fun WindowFocusObserver(onWindowFocusChanged: (isWindowFocused: Boolean
 
 internal class WindowInfoImpl : WindowInfo {
     private val _isWindowFocused = mutableStateOf(false)
+    private val _availableContentBounds = mutableStateOf(IntRect.Zero)
+    private val _windowBounds = mutableStateOf(IntRect.Zero)
 
     override var isWindowFocused: Boolean
+        get() = _isWindowFocused.value
         set(value) {
             _isWindowFocused.value = value
         }
-        get() = _isWindowFocused.value
 
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     override var keyboardModifiers: PointerKeyboardModifiers
         get() = GlobalKeyboardModifiers.value
         set(value) {
             GlobalKeyboardModifiers.value = value
+        }
+
+    override var availableContentBounds: IntRect
+        get() = _availableContentBounds.value
+        set(value) {
+            _availableContentBounds.value = value
+        }
+
+    override var windowBounds: IntRect
+        get() = _windowBounds.value
+        set(value) {
+            _windowBounds.value = value
         }
 
     companion object {
