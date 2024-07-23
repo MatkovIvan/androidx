@@ -56,6 +56,8 @@ androidXMultiplatform {
                 api(project(":compose:ui:ui-text"))
                 api(project(":compose:ui:ui-unit"))
                 api(project(":compose:ui:ui-util"))
+
+                api("androidx.lifecycle:lifecycle-runtime-compose:2.8.3")
             }
         }
 
@@ -87,7 +89,6 @@ androidXMultiplatform {
                 implementation('androidx.collection:collection:1.0.0')
                 implementation("androidx.customview:customview-poolingcontainer:1.0.0")
                 implementation("androidx.savedstate:savedstate-ktx:1.2.1")
-                api("androidx.lifecycle:lifecycle-runtime-compose:2.8.3")
                 implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
                 implementation("androidx.emoji2:emoji2:1.2.0")
 
