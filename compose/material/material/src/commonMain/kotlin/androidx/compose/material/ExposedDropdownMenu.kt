@@ -15,9 +15,6 @@
  */
 package androidx.compose.material
 
-import android.graphics.Rect
-import android.view.View
-import android.view.ViewTreeObserver
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
@@ -36,8 +33,8 @@ import androidx.compose.material.internal.icons.Icons
 import androidx.compose.material.internal.icons.ArrowDropDown
 import androidx.compose.material.internal.ExposedDropdownMenuPopup
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -46,6 +43,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
@@ -59,12 +57,13 @@ import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.IntRect
 import kotlin.math.max
 
 /**
@@ -95,7 +94,7 @@ fun ExposedDropdownMenuBox(
     content: @Composable ExposedDropdownMenuBoxScope.() -> Unit
 ) {
     val density = LocalDensity.current
-    val view = LocalView.current
+    val windowInfo = LocalWindowInfo.current
     var width by remember { mutableIntStateOf(0) }
     var menuHeight by remember { mutableIntStateOf(0) }
     val verticalMarginInPx = with(density) { MenuVerticalMargin.roundToPx() }
@@ -122,7 +121,11 @@ fun ExposedDropdownMenuBox(
             .onGloballyPositioned {
                 width = it.size.width
                 coordinates.value = it
-                updateHeight(view.rootView, coordinates.value, verticalMarginInPx) { newHeight ->
+                updateHeight(
+                    windowInfo.availableContentBounds,
+                    coordinates.value,
+                    verticalMarginInPx
+                ) { newHeight ->
                     menuHeight = newHeight
                 }
             }
@@ -137,54 +140,13 @@ fun ExposedDropdownMenuBox(
 
     SideEffect { if (expanded) focusRequester.requestFocus() }
 
-    DisposableEffect(view) {
-        val listener =
-            OnGlobalLayoutListener(view) {
-                // We want to recalculate the menu height on relayout - e.g. when keyboard shows up.
-                updateHeight(view.rootView, coordinates.value, verticalMarginInPx) { newHeight ->
-                    menuHeight = newHeight
-                }
+    LaunchedEffect(windowInfo) {
+        snapshotFlow { windowInfo.availableContentBounds }.collect {
+            // We want to recalculate the menu height on relayout - e.g. when keyboard shows up.
+            updateHeight(it, coordinates.value, verticalMarginInPx) { newHeight ->
+                menuHeight = newHeight
             }
-        onDispose { listener.dispose() }
-    }
-}
-
-/**
- * Subscribes to onGlobalLayout and correctly removes the callback when the View is detached. Logic
- * copied from AndroidPopup.android.kt.
- */
-private class OnGlobalLayoutListener(
-    private val view: View,
-    private val onGlobalLayoutCallback: () -> Unit
-) : View.OnAttachStateChangeListener, ViewTreeObserver.OnGlobalLayoutListener {
-    private var isListeningToGlobalLayout = false
-
-    init {
-        view.addOnAttachStateChangeListener(this)
-        registerOnGlobalLayoutListener()
-    }
-
-    override fun onViewAttachedToWindow(p0: View) = registerOnGlobalLayoutListener()
-
-    override fun onViewDetachedFromWindow(p0: View) = unregisterOnGlobalLayoutListener()
-
-    override fun onGlobalLayout() = onGlobalLayoutCallback()
-
-    private fun registerOnGlobalLayoutListener() {
-        if (isListeningToGlobalLayout || !view.isAttachedToWindow) return
-        view.viewTreeObserver.addOnGlobalLayoutListener(this)
-        isListeningToGlobalLayout = true
-    }
-
-    private fun unregisterOnGlobalLayoutListener() {
-        if (!isListeningToGlobalLayout) return
-        view.viewTreeObserver.removeOnGlobalLayoutListener(this)
-        isListeningToGlobalLayout = false
-    }
-
-    fun dispose() {
-        unregisterOnGlobalLayoutListener()
-        view.removeOnAttachStateChangeListener(this)
+        }
     }
 }
 
@@ -500,24 +462,18 @@ private fun Modifier.expandable(onExpandedChange: () -> Unit, menuLabel: String)
         }
 
 private fun updateHeight(
-    view: View,
+    availableContentBounds: IntRect,
     coordinates: LayoutCoordinates?,
     verticalMarginInPx: Int,
     onHeightUpdate: (Int) -> Unit
 ) {
     coordinates ?: return
-    val visibleWindowBounds =
-        Rect().let {
-            view.getWindowVisibleDisplayFrame(it)
-            it
-        }
-    val heightAbove = coordinates.boundsInWindow().top - visibleWindowBounds.top
-    val heightBelow =
-        visibleWindowBounds.bottom - visibleWindowBounds.top - coordinates.boundsInWindow().bottom
+    val boundsInWindow = coordinates.boundsInWindow()
+    val heightAbove = boundsInWindow.top - availableContentBounds.top
+    val heightBelow = availableContentBounds.height - boundsInWindow.bottom
     onHeightUpdate(max(heightAbove, heightBelow).toInt() - verticalMarginInPx)
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Immutable
 private class DefaultTextFieldForExposedDropdownMenusColors(
     private val textColor: Color,
