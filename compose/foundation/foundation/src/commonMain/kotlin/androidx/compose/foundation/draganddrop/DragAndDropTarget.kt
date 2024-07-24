@@ -18,8 +18,8 @@ package androidx.compose.foundation.draganddrop
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.DragAndDropModifierNode
 import androidx.compose.ui.draganddrop.DragAndDropTarget
+import androidx.compose.ui.draganddrop.DragAndDropTargetModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
@@ -37,8 +37,6 @@ import androidx.compose.ui.platform.InspectorInfo
  *
  * All drag and drop target modifiers in the hierarchy will be given an opportunity to participate
  * in a given drag and drop session via [shouldStartDragAndDrop].
- *
- * @see [DragAndDropModifierNode.acceptDragAndDropTransfer]
  */
 fun Modifier.dragAndDropTarget(
     shouldStartDragAndDrop: (startEvent: DragAndDropEvent) -> Boolean,
@@ -61,7 +59,10 @@ private class DropTargetElement(
         )
 
     override fun update(node: DragAndDropTargetNode) =
-        node.update(target = target, shouldStartDragAndDrop = shouldStartDragAndDrop)
+        with(node) {
+            shouldStartDragAndDrop = this@DropTargetElement.shouldStartDragAndDrop
+            target = this@DropTargetElement.target
+        }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "dropTarget"
@@ -85,42 +86,18 @@ private class DropTargetElement(
 }
 
 private class DragAndDropTargetNode(
-    private var shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
-    private var target: DragAndDropTarget
+    var shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
+    var target: DragAndDropTarget
 ) : DelegatingNode() {
-
-    private var dragAndDropNode: DragAndDropModifierNode? = null
-
-    override fun onAttach() {
-        createAndAttachDragAndDropModifierNode()
-    }
-
-    fun update(
-        shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
-        target: DragAndDropTarget
-    ) {
-        this.shouldStartDragAndDrop = shouldStartDragAndDrop
-        if (target != this.target) {
-            dragAndDropNode?.let { undelegate(it) }
-            this.target = target
-            createAndAttachDragAndDropModifierNode()
-        }
-    }
-
-    override fun onDetach() {
-        undelegate(dragAndDropNode!!)
-    }
-
-    private fun createAndAttachDragAndDropModifierNode() {
-        dragAndDropNode =
-            delegate(
-                DragAndDropModifierNode(
-                    // We wrap the this.shouldStartDragAndDrop invocation in a lambda as it might
-                    // change over
-                    // time, and updates to shouldStartDragAndDrop are not destructive.
-                    shouldStartDragAndDrop = { this.shouldStartDragAndDrop(it) },
-                    target = this.target
-                )
-            )
+    init {
+        delegate(
+            DragAndDropTargetModifierNode { event ->
+                // Wrap [shouldStartDragAndDrop]/[target] invocation in a lambda as it might
+                // change over time, and updates should not be destructive because
+                // [DragAndDropTargetModifierNode] persists internal state of
+                // the current transaction.
+                if (shouldStartDragAndDrop(event)) target else null
+            }
+        )
     }
 }

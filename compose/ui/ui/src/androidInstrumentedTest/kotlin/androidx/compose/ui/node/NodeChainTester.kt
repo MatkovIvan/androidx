@@ -425,6 +425,7 @@ private class MockOwner(
     override val fontFamilyResolver: FontFamily.Resolver
         get() = TODO("Not yet implemented")
 
+    @InternalComposeUiApi
     override val dragAndDropManager: DragAndDropManager
         get() = TODO("Not yet implemented")
 

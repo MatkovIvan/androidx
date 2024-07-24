@@ -303,7 +303,7 @@ internal interface Owner : PositionCalculator {
     /** [listener] will be notified after the current or next layout has finished. */
     fun registerOnLayoutCompletedListener(listener: OnLayoutCompletedListener)
 
-    val dragAndDropManager: DragAndDropManager
+    @InternalComposeUiApi val dragAndDropManager: DragAndDropManager
 
     /**
      * Starts a new text input session and suspends until it's closed. For more information see

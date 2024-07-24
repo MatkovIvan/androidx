@@ -16,7 +16,12 @@
 
 package androidx.compose.ui.draganddrop
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.platform.LocalDragAndDropManager
 
 /**
  * Definition for a type representing transferable data. It could be a remote URI, rich text data on
@@ -32,6 +37,39 @@ expect class DragAndDropEvent
  * hierarchy.
  */
 internal expect val DragAndDropEvent.positionInRoot: Offset
+
+/**
+ * Returns a boolean value indicating whether requesting drag and drop transfer is supported. If
+ * it's not, the transfer might be initiated only be system and calling
+ * [DragAndDropSourceModifierNode.requestDragAndDropTransfer] will throw an error.
+ *
+ * @see DragAndDropManager.isRequestDragAndDropTransferSupported
+ */
+@OptIn(InternalComposeUiApi::class)
+@Composable
+fun isRequestDragAndDropTransferSupported(): Boolean =
+    LocalDragAndDropManager.current.isRequestDragAndDropTransferSupported
+
+/** A scope that allows starting a drag and drop session. */
+interface DragAndDropSourceScope {
+    /**
+     * Initiates a drag-and-drop operation for transferring data.
+     *
+     * @param transferData the data to be transferred after successful completion of the drag and
+     *   drop gesture.
+     * @param decorationSize the size of the drag decoration to be drawn.
+     * @param drawDragDecoration provides the visual representation of the item dragged during the
+     *   drag and drop gesture.
+     * @return true if the method completes successfully, or false if it fails anywhere. Returning
+     *   false means the system was unable to do a drag because of another ongoing operation or some
+     *   other reasons.
+     */
+    fun startDragAndDropTransfer(
+        transferData: DragAndDropTransferData,
+        decorationSize: Size,
+        drawDragDecoration: DrawScope.() -> Unit,
+    ): Boolean
+}
 
 /** Provides a means of receiving a transfer data from a drag and drop session. */
 interface DragAndDropTarget {

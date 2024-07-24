@@ -2384,6 +2384,7 @@ internal class MockOwner(
     @InternalCoreApi override var showLayoutBounds: Boolean = false
     override val snapshotObserver = OwnerSnapshotObserver { it.invoke() }
     override val modifierLocalManager: ModifierLocalManager = ModifierLocalManager(this)
+    @InternalComposeUiApi
     override val dragAndDropManager: DragAndDropManager
         get() = TODO("Not yet implemented")
 
