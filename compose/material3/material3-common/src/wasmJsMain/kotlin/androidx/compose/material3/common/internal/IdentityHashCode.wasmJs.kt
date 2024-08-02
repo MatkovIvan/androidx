@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation
+package androidx.compose.material3.common.internal
 
-internal actual fun isMouseInputWorkaround(): Boolean = false
+internal actual fun identityHashCode(instance: Any?): Int {
+    if (instance == null) {
+        return 0
+    }
+    return instance.hashCode()
+}
