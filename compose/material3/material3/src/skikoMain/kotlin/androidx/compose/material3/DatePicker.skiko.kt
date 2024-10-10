@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.internal
+package androidx.compose.material3
 
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.internal.format
 
-// TODO(https://github.com/JetBrains/compose-multiplatform/issues/3360) Support localization
-//  the current values are copied from compose\foundation\foundation\src\androidMain\res\values-en-rGB\strings.xml
-internal actual object BasicTooltipStrings {
-    @Composable
-    actual fun label() = "show tooltip"
-    @Composable
-    actual fun description() = "tooltip"
-}
+@Suppress("NOTHING_TO_INLINE")
+internal actual inline fun formatDatePickerNavigateToYearString(
+    template: String,
+    localizedYear: String
+): String = template.format(localizedYear)
+
+@Suppress("NOTHING_TO_INLINE")
+internal actual inline fun formatHeadlineDescription(
+    template: String,
+    verboseDateDescription: String
+): String = template.format(verboseDateDescription)
