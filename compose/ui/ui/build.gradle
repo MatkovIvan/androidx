@@ -67,6 +67,8 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinReflect)
                 api project(":compose:ui:ui-util")
+                implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:foundation:foundation-layout"))
             }
         }
 
@@ -143,8 +145,6 @@ androidXMultiplatform {
                 implementation(libs.mockitoKotlin)
                 implementation(libs.material)
                 implementation(project(":compose:animation:animation-core"))
-                implementation(project(":compose:foundation:foundation"))
-                implementation(project(":compose:foundation:foundation-layout"))
                 implementation(project(":compose:material:material"))
                 implementation("androidx.compose.material:material-icons-core:1.6.7")
                 implementation(project(":compose:test-utils"))

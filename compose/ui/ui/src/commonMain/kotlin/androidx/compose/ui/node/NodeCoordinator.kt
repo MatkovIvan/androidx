@@ -319,6 +319,12 @@ internal abstract class NodeCoordinator(
         }
     }
 
+    fun onUnplaced() {
+        if (hasNode(Nodes.Unplaced)) {
+            visitNodes(Nodes.Unplaced) { it.onUnplaced() }
+        }
+    }
+
     /** Places the modified child. */
     /*@CallSuper*/
     override fun placeAt(
