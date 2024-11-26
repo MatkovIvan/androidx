@@ -14,10 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.compose.runtime
+package androidx.compose.ui
 
-@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
-internal actual typealias SynchronizedObject = Any
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-@PublishedApi
-internal actual inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R = block()
+@OptIn(DelicateCoroutinesApi::class)
+internal actual fun postDelayed(delayMillis: Long, block: () -> Unit): Any {
+    // TODO
+    return GlobalScope.launch(Dispatchers.Main) {
+        delay(delayMillis)
+        block()
+    }
+}
+
+internal actual fun removePost(token: Any?) {
+    val job = token as? Job?
+    job?.cancel()
+}

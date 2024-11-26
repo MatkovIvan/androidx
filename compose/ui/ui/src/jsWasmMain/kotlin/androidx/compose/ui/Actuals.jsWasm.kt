@@ -16,4 +16,9 @@
 
 package androidx.compose.ui
 
+internal actual fun currentTimeMillis(): Long {
+    // TODO
+    return 0
+}
+
 internal actual fun getCurrentThreadId(): Long = 0
