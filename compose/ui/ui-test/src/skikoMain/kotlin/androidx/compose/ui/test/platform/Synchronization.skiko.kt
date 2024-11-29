@@ -13,12 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.compose.ui.test.platform
 
-package androidx.compose.mpp.demo.components.text
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
-import androidx.compose.mpp.demo.loadRes
-import androidx.compose.mpp.demo.toByteArray
+internal actual class SynchronizedObject : kotlinx.atomicfu.locks.SynchronizedObject()
 
-actual suspend fun loadResource(file: String): ByteArray? {
-    return loadRes(file).toByteArray()
+internal actual inline fun makeSynchronizedObject(ref: Any?) = SynchronizedObject()
+
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalContracts::class)
+internal actual inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R {
+    contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
+    return kotlinx.atomicfu.locks.synchronized(lock, block)
 }
