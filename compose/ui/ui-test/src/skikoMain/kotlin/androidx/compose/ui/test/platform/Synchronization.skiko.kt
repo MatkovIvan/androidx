@@ -13,7 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.compose.ui.test.platform
 
-package androidx.compose.runtime
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
-internal actual val PTHREAD_MUTEX_ERRORCHECK: Int = platform.posix.PTHREAD_MUTEX_ERRORCHECK
+internal actual class SynchronizedObject : kotlinx.atomicfu.locks.SynchronizedObject()
+
+internal actual inline fun makeSynchronizedObject(ref: Any?) = SynchronizedObject()
+
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalContracts::class)
+internal actual inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R {
+    contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
+    return kotlinx.atomicfu.locks.synchronized(lock, block)
+}

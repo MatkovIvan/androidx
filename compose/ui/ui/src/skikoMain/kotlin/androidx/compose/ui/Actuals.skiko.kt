@@ -16,9 +16,23 @@
 
 package androidx.compose.ui
 
-internal actual fun currentTimeMillis(): Long {
-    // TODO https://youtrack.jetbrains.com/issue/CMP-7152/Implement-currentTimeMillis-for-web
-    return 0
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+@OptIn(DelicateCoroutinesApi::class)
+internal actual fun postDelayed(delayMillis: Long, block: () -> Unit): Any {
+    // TODO https://youtrack.jetbrains.com/issue/CMP-7153/Remove-usage-of-the-main-thread-for-rect-tracking
+    return GlobalScope.launch(Dispatchers.Main) {
+        delay(delayMillis)
+        block()
+    }
 }
 
-internal actual fun getCurrentThreadId(): Long = 0
+internal actual fun removePost(token: Any?) {
+    val job = token as? Job?
+    job?.cancel()
+}
