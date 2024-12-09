@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.runtime
+package androidx.compose.ui
 
-@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
-internal actual typealias SynchronizedObject = Any
+import kotlin.coroutines.CoroutineContext
+import org.jetbrains.skiko.MainUIDispatcher
 
-@PublishedApi
-internal actual inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R = block()
+internal actual val PostDelayedDispatcher: CoroutineContext
+    get() = MainUIDispatcher

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui
+package androidx.compose.runtime.platform
 
-import kotlinx.atomicfu.atomic
+@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
+internal actual typealias SynchronizedObject = Any
 
-internal actual fun areObjectsOfSameType(a: Any, b: Any): Boolean {
-    return a::class == b::class
-}
+@Suppress("NOTHING_TO_INLINE")
+internal actual inline fun makeSynchronizedObject(ref: Any?) = ref ?: SynchronizedObject()
 
-private val threadCounter = atomic(0L)
-
-@kotlin.native.concurrent.ThreadLocal
-private var threadId: Long = threadCounter.addAndGet(1)
-
-internal actual fun getCurrentThreadId(): Long = threadId
-
+@PublishedApi
+internal actual inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R = block()

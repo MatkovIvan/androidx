@@ -13,13 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.compose.ui.test.platform
 
-package androidx.compose.foundation
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
-import androidx.compose.ui.node.DelegatableNode
+internal actual class SynchronizedObject : kotlinx.atomicfu.locks.SynchronizedObject()
 
-// TODO(https://github.com/JetBrains/compose-multiplatform/issues/3341): support isComposeRootInScrollableContainer
-internal actual fun DelegatableNode
-    .isComposeRootInScrollableContainer(): Boolean {
-    return false
+internal actual inline fun makeSynchronizedObject(ref: Any?) = SynchronizedObject()
+
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalContracts::class)
+internal actual inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R {
+    contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
+    return kotlinx.atomicfu.locks.synchronized(lock, block)
 }

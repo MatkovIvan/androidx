@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,21 @@
 
 package androidx.compose.ui
 
-internal actual fun classKeyForObject(a: Any): Any {
-    return a::class
+import kotlin.system.getTimeMillis
+import kotlinx.atomicfu.atomic
+
+internal actual fun areObjectsOfSameType(a: Any, b: Any): Boolean {
+    return a::class == b::class
 }
+
+internal actual fun currentTimeMillis(): Long {
+    @Suppress("DEPRECATION") // TODO: Avoid using deprecated function
+    return getTimeMillis()
+}
+
+private val threadCounter = atomic(0L)
+
+@kotlin.native.concurrent.ThreadLocal
+private var threadId: Long = threadCounter.addAndGet(1)
+
+internal actual fun getCurrentThreadId(): Long = threadId
