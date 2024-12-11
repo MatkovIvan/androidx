@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.relocation
+package androidx.compose.ui.platform
 
-import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.runtime.AbstractApplier
+import androidx.compose.ui.node.LayoutNode
 
-/**
- * Platform specific internal API to bring a rectangle into view.
- */
-internal actual fun DelegatableNode.defaultBringIntoViewParent():
-    BringIntoViewParent =
-     BringIntoViewParent { _, _ ->
-        // TODO(b/203204124): Implement this if desktop has a
-        //  concept similar to Android's View.requestRectangleOnScreen.
-    }
+internal actual fun createApplier(container: LayoutNode): AbstractApplier<LayoutNode> =
+    DefaultUiApplier(container)
