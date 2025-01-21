@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text.input
+package androidx.compose.ui.internal
 
-internal actual fun StringBuilder.appendPartOfCharArray(charArray: CharArray, offset: Int, len: Int) {
-    for (i in offset until (offset + len)) {
-        append(charArray[i])
-    }
-}
+internal actual fun getCurrentThreadId(): Long = Thread.currentThread().id
