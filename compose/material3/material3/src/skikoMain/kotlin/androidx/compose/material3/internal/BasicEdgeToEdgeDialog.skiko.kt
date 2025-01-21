@@ -14,57 +14,44 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
-@Immutable
-@ExperimentalMaterial3ExpressiveApi
-actual class ModalWideNavigationRailProperties
-actual constructor(
-    actual val shouldDismissOnBackPress: Boolean,
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ModalBottomSheetProperties) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = shouldDismissOnBackPress.hashCode()
-        return result
-    }
-}
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-internal actual fun createDefaultModalWideNavigationRailProperties() =
-    ModalWideNavigationRailProperties()
+// TODO This should not be part of material, but we cannot change it in fork.
+//  This is a part of bigger task - we need to remove all Popup/Dialog copies from material
+//  See https://youtrack.jetbrains.com/issue/CMP-7224
 
 @OptIn(ExperimentalComposeUiApi::class)
-@ExperimentalMaterial3ExpressiveApi
 @Composable
-internal actual fun ModalWideNavigationRailDialog(
+internal actual fun BasicEdgeToEdgeDialog(
     onDismissRequest: () -> Unit,
-    properties: ModalWideNavigationRailProperties,
-    onPredictiveBack: (Float) -> Unit,
-    onPredictiveBackCancelled: () -> Unit,
-    predictiveBackState: RailPredictiveBackState,
-    content: @Composable () -> Unit
+    modifier: Modifier,
+    properties: DialogProperties,
+    lightStatusBars: Boolean,
+    lightNavigationBars: Boolean,
+    content: @Composable (PredictiveBackState) -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(
-            dismissOnBackPress = properties.shouldDismissOnBackPress,
+            dismissOnBackPress = properties.dismissOnBackPress,
+            dismissOnClickOutside = properties.dismissOnClickOutside,
             usePlatformDefaultWidth = false,
             usePlatformInsets = false,
+            useSoftwareKeyboardInset = false,
             scrimColor = Color.Transparent,
         ),
-        content = content
-    )
+    ) {
+        val predictiveBackState = rememberPredictiveBackState()
+        Box(modifier = modifier) {
+            content(predictiveBackState)
+        }
+    }
 }
