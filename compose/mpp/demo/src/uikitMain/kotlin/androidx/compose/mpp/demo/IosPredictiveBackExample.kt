@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,16 @@
 package androidx.compose.mpp.demo
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
+import androidx.compose.material.Card
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,14 +34,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.backhandler.PredictiveBackHandler
 import androidx.compose.ui.uikit.LocalUIViewController
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeUIViewController
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import platform.UIKit.NSLayoutConstraint
 import platform.UIKit.UIColor
 import platform.UIKit.UIModalPresentationFormSheet
@@ -50,77 +49,77 @@ import platform.UIKit.addChildViewController
 import platform.UIKit.didMoveToParentViewController
 import platform.UIKit.sheetPresentationController
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalComposeApi::class)
-val NativePopupWithComposePopupExample = Screen.Example("Native popup with Compose popup") {
+val IosPredictiveBackExample = Screen.Example("IosPredictiveBackExample") {
+    IosPredictiveBackExampleContent()
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun IosPredictiveBackExampleContent() {
     val viewController = LocalUIViewController.current
 
-    Column {
+    Column(
+        Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        var showDialog by remember { mutableStateOf(false) }
+        var enablePredictiveBackHandler by remember { mutableStateOf(true) }
+        var predictiveBackHandlerState by remember { mutableStateOf("empty") }
+        Button(
+            onClick = { showDialog = true }
+        ) {
+            Text("Show dialog with Back Handler")
+        }
+        if (showDialog) {
+            Dialog(
+                properties = DialogProperties(dismissOnClickOutside = false),
+                onDismissRequest = {
+                    showDialog = false
+                }
+            ) {
+                Card {
+                    Box(modifier = Modifier.background(MaterialTheme.colors.surface).padding(16.dp)) {
+                        var bhState by remember { mutableStateOf("empty") }
+                        Text("state: $bhState")
+                        PredictiveBackHandler { events ->
+                            try {
+                                events.collect { event ->
+                                    bhState = "\nx=${event.touchX}\ny=${event.touchY}\nprogress=${event.progress}\nedge=${event.swipeEdge}"
+                                }
+                                bhState = "DONE"
+                                showDialog = false
+                            } catch (e: Exception) {
+                                bhState = "CANCEL"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         Button(onClick = {
             val presentedViewController = UIViewController(nibName = null, bundle = null)
             presentedViewController.view.backgroundColor = UIColor.yellowColor
 
             val composeViewController = ComposeUIViewController {
-                var showComposePopup by remember { mutableStateOf(false) }
-                var showComposeDialog by remember { mutableStateOf(false) }
-
-                Column(
+                Box(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.SpaceEvenly,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    contentAlignment = Alignment.Center
                 ) {
-                    Button(onClick = {
-                        showComposePopup = true
-                    }) {
-                        Text("Show Compose popup")
-
-                        if (showComposePopup) {
-                            Popup(
-                                onDismissRequest = {
-                                    showComposePopup = false
-                                },
-                                properties = PopupProperties(
-                                    usePlatformDefaultWidth = true,
-                                    dismissOnClickOutside = true
-                                )
-                            ) {
-                                Text(
-                                    text = "Popup",
-                                    color = Color.Black,
-                                    modifier = Modifier
-                                        .size(150.dp)
-                                        .clickable { showComposePopup = false }
-                                        .background(Color.LightGray)
-                                )
-                            }
-                        }
-                    }
-
-                    Button(onClick = {
-                        showComposeDialog = true
-                    }) {
-                        Text("Show Compose dialog")
-
-                        if (showComposeDialog) {
-                            Dialog(
-                                onDismissRequest = {
-                                    showComposeDialog = false
-                                },
-                                properties = DialogProperties(
-                                    dismissOnClickOutside = true,
-                                )
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(Color.Green)
-                                        .clickable { showComposeDialog = false }
-                                    ,
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = "Compose dialog",
-                                        color = Color.Black
-                                    )
+                    Card {
+                        Box(modifier = Modifier.background(MaterialTheme.colors.surface).padding(16.dp)) {
+                            var bhState by remember { mutableStateOf("empty") }
+                            Text("state: $bhState")
+                            PredictiveBackHandler { events ->
+                                try {
+                                    events.collect { event ->
+                                        bhState = "\nx=${event.touchX}\ny=${event.touchY}\nprogress=${event.progress}\nedge=${event.swipeEdge}"
+                                    }
+                                    bhState = "DONE"
+                                    showDialog = false
+                                } catch (e: Exception) {
+                                    bhState = "CANCEL"
                                 }
                             }
                         }
@@ -158,15 +157,22 @@ val NativePopupWithComposePopupExample = Screen.Example("Native popup with Compo
         }
 
         Button(
-            onClick = {
-                val composeViewController = ComposeUIViewController {
-                    IosDemo("", null)
-                }
-
-                viewController.presentViewController(composeViewController, true, null)
-            }
+            onClick = { enablePredictiveBackHandler = !enablePredictiveBackHandler }
         ) {
-            Text("Show native modal with whole Demo app")
+            Text("Enable Predictive Back Handler: $enablePredictiveBackHandler")
+        }
+        Text("Predictive back handler state: $predictiveBackHandlerState")
+
+        PredictiveBackHandler(enablePredictiveBackHandler) { events ->
+            try {
+                events.collect { event ->
+                    predictiveBackHandlerState = "\nx=${event.touchX}\ny=${event.touchY}\nprogress=${event.progress}\nedge=${event.swipeEdge}"
+                }
+                predictiveBackHandlerState = "DONE"
+            } catch (e: Exception) {
+                predictiveBackHandlerState = "CANCEL"
+            }
         }
     }
+
 }
