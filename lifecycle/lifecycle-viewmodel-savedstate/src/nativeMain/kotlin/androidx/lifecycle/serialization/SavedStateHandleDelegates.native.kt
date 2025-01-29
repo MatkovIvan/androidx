@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle
+package androidx.lifecycle.serialization
 
-internal actual fun isMainThread(): Boolean {
-    return true
-}
+import kotlin.reflect.KClass
+
+internal actual val <T : Any> KClass<T>.canonicalName: String?
+    get() = qualifiedName
