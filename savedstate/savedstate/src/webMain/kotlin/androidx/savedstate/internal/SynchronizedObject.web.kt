@@ -13,19 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.savedstate.internal
 
-package androidx.compose.ui.platform
+internal actual class SynchronizedObject actual constructor()
 
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.text.input.TextFieldValue
-
-actual interface PlatformTextInputSession {
-    actual suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing
-
-    @ExperimentalComposeUiApi
-    fun updateSelectionState(newState: TextFieldValue) = Unit
-
-    @ExperimentalComposeUiApi
-    fun notifyFocusedRect(rect: Rect) = Unit
-}
+internal actual inline fun <T> synchronizedImpl(
+    lock: SynchronizedObject,
+    crossinline action: () -> T
+): T = action()

@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
+package androidx.savedstate.internal
 
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.text.input.TextFieldValue
+import kotlin.reflect.KClass
 
-actual interface PlatformTextInputSession {
-    actual suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing
-
-    @ExperimentalComposeUiApi
-    fun updateSelectionState(newState: TextFieldValue) = Unit
-
-    @ExperimentalComposeUiApi
-    fun notifyFocusedRect(rect: Rect) = Unit
-}
+internal actual val KClass<*>?.commonQualifiedName: String? get() = this?.simpleName
