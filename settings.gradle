@@ -2,15 +2,12 @@ import groovy.transform.Field
 
 pluginManagement {
     repositories {
+        // JetBrains fork change:
+        // Removed local cross-repo references and always use ALLOW_PUBLIC_REPOS path
+        mavenCentral()
+        google()
         maven {
-            url = new File(buildscript.sourceFile.parent + "/../../prebuilts/androidx/external").getCanonicalFile()
-        }
-        if (System.getenv("ALLOW_PUBLIC_REPOS") != null || System.getProperty("ALLOW_PUBLIC_REPOS") != null) {
-            mavenCentral()
-            google()
-            maven {
-                url = "https://plugins.gradle.org/m2/"
-            }
+            url = "https://plugins.gradle.org/m2/"
         }
     }
 }
@@ -19,7 +16,6 @@ buildscript {
     ext.supportRootFolder = buildscript.sourceFile.getParentFile()
     apply(from: "buildSrc/repos.gradle")
     apply(from: "buildSrc/settingsScripts/project-dependency-graph.groovy")
-    apply(from: "buildSrc/settingsScripts/skiko-setup.groovy")
 
     repos.addMavenRepositories(repositories)
 
@@ -43,15 +39,6 @@ buildscript {
 enableFeaturePreview "STABLE_CONFIGURATION_CACHE"
 
 def supportRootFolder = buildscript.sourceFile.getParentFile()
-skikoSetup.defineSkikoInVersionCatalog(settings)
-
-// Abort immediately if we're running in Studio, but not a managed instance of Studio.
-if (startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
-    def expectedAgpVersion = System.getenv().get("EXPECTED_AGP_VERSION")
-    if (expectedAgpVersion == null) {
-        throw new Exception("Android Studio must be run from studiow or gradlew studio.")
-    }
-}
 
 // Makes strong assumptions about the project structure.
 def prebuiltsRoot = new File(
@@ -76,12 +63,11 @@ getGradle().beforeProject { project ->
     }
     project.ext.supportRootFolder = supportRootFolder
     project.ext.prebuiltsRoot = prebuiltsRoot
-    init.chooseBuildDirectory(
-            new File("${buildscript.sourceFile.parent}/../.."), rootProject.name, project
-    )
+    def checkoutRoot = new File(buildscript.sourceFile.parent)
+    init.chooseBuildDirectory(checkoutRoot, rootProject.name, project)
 
     // https://youtrack.jetbrains.com/issue/KT-58223
-    def kotlinDir = new File(System.getenv("OUT_DIR"), ".kotlin")
+    def kotlinDir = new File(supportRootFolder, ".kotlin")
     project.setProperty("kotlin.project.persistent.dir", kotlinDir.absolutePath)
 }
 
@@ -181,11 +167,9 @@ enum BuildType {
 }
 
 private String getRequestedProjectSubsetName() {
-    def envProp = providers.environmentVariable("ANDROIDX_PROJECTS")
-    if (envProp.isPresent()) {
-        return envProp.get().toUpperCase()
-    }
-    return null
+    // JetBrains fork change:
+    // Do not require specifying ANDROIDX_PROJECTS, it's always "COMPOSE"
+    return "COMPOSE"
 }
 
 /**
@@ -529,8 +513,6 @@ includeProject(":compose:integration-tests:hero:jetsnack:jetsnack-implementation
 includeProject(":compose:integration-tests:hero:jetsnack:jetsnack-macrobenchmark-target", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:hero:jetsnack:jetsnack-macrobenchmark", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:hero:jetsnack:jetsnack-microbenchmark", [BuildType.COMPOSE])
-includeProject(":compose:integration-tests:hero:pokedex:pokedex-macrobenchmark-target", [BuildType.COMPOSE])
-includeProject(":compose:integration-tests:hero:pokedex:pokedex-macrobenchmark", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:macrobenchmark", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:macrobenchmark-target", [BuildType.COMPOSE])
 includeProject(":compose:integration-tests:material-catalog", [BuildType.COMPOSE])
@@ -712,20 +694,6 @@ includeProject(":drawerlayout:drawerlayout", [BuildType.MAIN])
 includeProject(":dynamicanimation", [BuildType.MAIN])
 includeProject(":dynamicanimation:dynamicanimation", [BuildType.MAIN])
 includeProject(":dynamicanimation:dynamicanimation-ktx", [BuildType.MAIN])
-includeProject(":emoji2:emoji2-emojipicker", [BuildType.MAIN])
-includeProject(":emoji2:emoji2-emojipicker:emoji2-emojipicker-samples", "emoji2/emoji2-emojipicker/samples",  [BuildType.MAIN])
-includeProject(":emoji:emoji", [BuildType.MAIN])
-includeProject(":emoji:emoji-appcompat", [BuildType.MAIN])
-includeProject(":emoji:emoji-bundled", [BuildType.MAIN])
-includeProject(":emoji2:emoji2", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":emoji2:emoji2-bundled", [BuildType.MAIN])
-includeProject(":emoji2:emoji2-views", [BuildType.MAIN])
-includeProject(":emoji2:emoji2-views-helper", [BuildType.MAIN])
-includeProject(":emoji2:emoji2-benchmark", [BuildType.MAIN])
-includeProject(":emoji2:integration-tests:init-disabled-macrobenchmark", [BuildType.MAIN])
-includeProject(":emoji2:integration-tests:init-disabled-macrobenchmark-target", [BuildType.MAIN])
-includeProject(":emoji2:integration-tests:init-enabled-macrobenchmark", [BuildType.MAIN])
-includeProject(":emoji2:integration-tests:init-enabled-macrobenchmark-target", [BuildType.MAIN])
 includeProject(":enterprise:enterprise-feedback", [BuildType.MAIN])
 includeProject(":enterprise:enterprise-feedback-testing", [BuildType.MAIN])
 includeProject(":exifinterface:exifinterface", [BuildType.MAIN])
@@ -1259,24 +1227,6 @@ includeProject(":media:version-compat-tests:service",
 includeProject(":media:version-compat-tests:service-previous",
         "media/version-compat-tests/previous/service", [BuildType.MAIN, BuildType.MEDIA])
 includeProject(":media:version-compat-tests:lib", [BuildType.MAIN, BuildType.MEDIA])
-
-/////////////////////////////
-//
-// External
-//
-/////////////////////////////
-
-File externalRoot = new File(rootDir, "../../external")
-
-includeProject(":icing", new File(externalRoot, "icing"), [BuildType.MAIN])
-includeProject(":icing:nativeLib", new File(externalRoot, "icing/nativeLib"), [BuildType.MAIN])
-includeProject(":external:libyuv", [BuildType.CAMERA])
-includeProject(":noto-emoji-compat-font", new File(externalRoot, "noto-fonts/emoji-compat"), [BuildType.MAIN])
-includeProject(":noto-emoji-compat-flatbuffers", new File(externalRoot, "noto-fonts/emoji-compat-flatbuffers"), [BuildType.MAIN, BuildType.COMPOSE])
-
-includeProject(":compose-hero-benchmarks", new File(externalRoot, "compose-hero-benchmarks"), [BuildType.COMPOSE])
-includeProject(":compose-hero-benchmarks:poxedex-compose", new File(externalRoot, "compose-hero-benchmarks/poxedex-compose"), [BuildType.COMPOSE])
-includeProject(":compose-hero-benchmarks:poxedex-compose:app", new File(externalRoot, "compose-hero-benchmarks/poxedex-compose/app"), [BuildType.COMPOSE])
 
 if (isAllProjects()) {
     includeProject(":docs-tip-of-tree")
