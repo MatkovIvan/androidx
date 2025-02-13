@@ -1451,7 +1451,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
      */
     private fun Project.buildContainsAllStandardProjects(): Boolean {
         if (getProjectSubset() != null) return false
-        if (ProjectLayoutType.isPlayground(this)) return false
+        if (!ProjectLayoutType.isAndroidX(this)) return false
         return true
     }
 
@@ -1707,7 +1707,7 @@ fun Project.workaroundPrebuiltTakingPrecedenceOverProject() {
 }
 
 private fun Project.configureUnzipChromeBuildService() {
-    if (ProjectLayoutType.isPlayground(this)) {
+    if (!ProjectLayoutType.isAndroidX(this)) {
         return
     }
     gradle.sharedServices.registerIfAbsent("unzipChrome", UnzipChromeBuildService::class.java) {

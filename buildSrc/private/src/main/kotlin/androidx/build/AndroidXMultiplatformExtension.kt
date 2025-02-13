@@ -752,7 +752,7 @@ private fun Project.configureWasm() {
 private fun Project.configureNode() {
     extensions.findByType<NodeJsEnvSpec>()?.let { nodeJs ->
         nodeJs.version.set(getVersionByName("node"))
-        if (!ProjectLayoutType.isPlayground(this)) {
+        if (ProjectLayoutType.isAndroidX(this)) {
             nodeJs.downloadBaseUrl.set(
                 File(project.getPrebuiltsRoot(), "androidx/external/org/nodejs/node")
                     .toURI()
@@ -765,7 +765,7 @@ private fun Project.configureNode() {
     rootProject.extensions.findByType(YarnRootExtension::class.java)?.let { yarn ->
         yarn.version = getVersionByName("yarn")
         yarn.yarnLockMismatchReport = YarnLockMismatchReport.FAIL
-        if (!ProjectLayoutType.isPlayground(this)) {
+        if (ProjectLayoutType.isAndroidX(this)) {
             yarn.lockFileDirectory =
                 File(project.getPrebuiltsRoot(), "androidx/javascript-for-kotlin")
         }
@@ -774,7 +774,7 @@ private fun Project.configureNode() {
 
 private fun Project.configureKotlinJsTests() =
     tasks.withType(KotlinJsTest::class.java).configureEach { task ->
-        if (!ProjectLayoutType.isPlayground(this)) {
+        if (ProjectLayoutType.isAndroidX(this)) {
             val unzipChromeBuildServiceProvider =
                 gradle.sharedServices.registrations.getByName("unzipChrome").service
             task.usesService(unzipChromeBuildServiceProvider)
