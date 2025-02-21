@@ -1,0 +1,103 @@
+/*
+ * Copyright 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+import androidx.build.KotlinTarget
+import androidx.build.SoftwareType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("AndroidXComposePlugin")
+    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.kotlinSerialization)
+}
+
+dependencies {
+    api(libs.kotlinStdlib)
+    api("androidx.activity:activity-compose:1.8.0")
+    api("androidx.compose.animation:animation:1.7.2")
+    api("androidx.compose.runtime:runtime:1.7.2")
+    api("androidx.compose.runtime:runtime-saveable:1.7.2")
+    api("androidx.compose.ui:ui:1.7.2")
+    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2")
+    api(project(":navigation:navigation-runtime"))
+    api(project(":navigation:navigation-common"))
+
+    implementation("androidx.activity:activity:1.8.0")
+    implementation("androidx.annotation:annotation:1.8.0")
+    implementation("androidx.compose.animation:animation-core:1.7.2")
+    implementation("androidx.compose.foundation:foundation-layout:1.7.2")
+    implementation("androidx.lifecycle:lifecycle-common:2.8.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.2")
+    implementation(libs.kotlinCoroutinesCore)
+    implementation(libs.kotlinSerializationCore)
+
+    androidTestImplementation("androidx.activity:activity:1.9.2")
+    androidTestImplementation("androidx.collection:collection-ktx:1.4.2")
+    androidTestImplementation("androidx.core:core-ktx:1.13.0")
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.8.2")
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.8.2")
+    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.8.2")
+    androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel:2.8.2")
+    androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.2")
+    androidTestImplementation("androidx.savedstate:savedstate:1.2.1")
+    androidTestImplementation(project(":navigation:navigation-testing"))
+    androidTestImplementation(project(":internal-testutils-navigation"), {
+        exclude group: "androidx.navigation", module: "navigation-common"
+    })
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
+
+    // Compose test dependencies
+    androidTestImplementation(project(":compose:animation:animation"))
+    androidTestImplementation(project(":compose:animation:animation-core"))
+    androidTestImplementation(project(":compose:foundation:foundation"))
+    androidTestImplementation(project(":compose:runtime:runtime"))
+    androidTestImplementation(project(":compose:runtime:runtime-saveable"))
+    androidTestImplementation(project(":compose:ui:ui"))
+    androidTestImplementation(project(":compose:ui:ui-graphics"))
+    androidTestImplementation(project(":compose:ui:ui-test"))
+    androidTestImplementation(project(":compose:ui:ui-text"))
+    androidTestImplementation(project(":compose:ui:ui-tooling-preview"))
+    androidTestImplementation(project(":compose:ui:ui-unit"))
+    androidTestImplementation(project(":compose:material:material"))
+    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:ui:ui-tooling"))
+
+    lintChecks(project(":navigation:navigation-compose-lint"))
+    lintPublish(project(":navigation:navigation-compose-lint"))
+}
+
+androidx {
+    name = "Compose Navigation"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2020"
+    description = "Compose integration with Navigation"
+    samples(project(":navigation:navigation-compose:navigation-compose-samples"))
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    addGoldenImageAssets()
+}
+
+android {
+    compileSdk = 35
+    namespace = "androidx.navigation.compose"
+}

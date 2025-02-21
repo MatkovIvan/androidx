@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.9.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.9.0-alpha01)" variant="all" version="8.9.0-alpha01">
+
+    <issue
+        id="MissingClass"
+        message="Class referenced in the manifest, `androidx.core.app.JobIntentService`, was not found in the project or the libraries"
+        errorLine1="        &lt;service android:name=&quot;androidx.core.app.JobIntentService&quot;>"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="BanKeepAnnotation"
+        message="Uses @Keep annotation"
+        errorLine1="@Keep"
+        errorLine2="~~~~~">
+        <location
+            file="src/main/java/androidx/KeepAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="BanKeepAnnotation"
+        message="Uses @Keep annotation"
+        errorLine1="@Keep class KeepAnnotationUsageKotlin"
+        errorLine2="~~~~~">
+        <location
+            file="src/main/java/androidx/KeepAnnotationUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanParcelableUsage"
+        message="Class implements android.os.Parcelable"
+        errorLine1="public class ParcelableUsageJava implements Parcelable {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ParcelableUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="BanParcelableUsage"
+        message="Class implements android.os.Parcelable"
+        errorLine1="open class ParcelableUsageKotlin protected constructor(parcel: Parcel) : Parcelable {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ParcelableUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanTargetApiAnnotation"
+        message="Use `@RequiresApi` instead of `@TargetApi`"
+        errorLine1="@TargetApi(29)"
+        errorLine2="~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/TargetApiUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="BanTargetApiAnnotation"
+        message="Use `@RequiresApi` instead of `@TargetApi`"
+        errorLine1="    @TargetApi(30)"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/TargetApiUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="BanTargetApiAnnotation"
+        message="Use `@RequiresApi` instead of `@TargetApi`"
+        errorLine1="@TargetApi(29)"
+        errorLine2="~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/TargetApiUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanTargetApiAnnotation"
+        message="Use `@RequiresApi` instead of `@TargetApi`"
+        errorLine1="    @TargetApi(30) fun someMethod() {}"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/TargetApiUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/ThreadSleepUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(1000)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/ThreadSleepUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="                        performStopActivity3ParamsMethod.invoke(activityThread,"
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreator.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="                        performStopActivity2ParamsMethod.invoke(activityThread,"
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreator.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="                        performStopActivity3ParamsMethod!!.invoke("
+        errorLine2="                        ^">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorKt.kt"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="                        performStopActivity2ParamsMethod!!.invoke(activityThread, token, false)"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorKt.kt"/>
+    </issue>
+
+    <issue
+        id="JSpecifyNullness"
+        message="Switch nullness annotation to JSpecify"
+        errorLine1="    static boolean recreate(@NonNull final Activity activity) {"
+        errorLine2="                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreator.java"/>
+    </issue>
+
+    <issue
+        id="JSpecifyNullness"
+        message="Switch nullness annotation to JSpecify"
+        errorLine1="        LifecycleCheckCallbacks(@NonNull Activity aboutToRecreate) {"
+        errorLine2="                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreator.java"/>
+    </issue>
+
+    <issue
+        id="JSpecifyNullness"
+        message="Switch nullness annotation to JSpecify"
+        errorLine1="    static boolean recreate(@NonNull final Activity activity) {"
+        errorLine2="                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorChecked.java"/>
+    </issue>
+
+    <issue
+        id="JSpecifyNullness"
+        message="Switch nullness annotation to JSpecify"
+        errorLine1="        LifecycleCheckCallbacks(@NonNull Activity aboutToRecreate) {"
+        errorLine2="                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorChecked.java"/>
+    </issue>
+
+    <issue
+        id="JSpecifyNullness"
+        message="Switch nullness annotation to JSpecify"
+        errorLine1="    protected ParcelableUsageJava(@NonNull Parcel in) {"
+        errorLine2="                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ParcelableUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="JSpecifyNullness"
+        message="Switch nullness annotation to JSpecify"
+        errorLine1="    public void writeToParcel(@NonNull Parcel dest, int flags) {"
+        errorLine2="                              ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ParcelableUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="                    Log.e(LOG_TAG, &quot;Exception while invoking performStopActivity&quot;, t);"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorChecked.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="            Log.e(LOG_TAG, &quot;Exception while fetching field values&quot;, t);"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorChecked.java"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="                    Log.e(LOG_TAG, &quot;Exception while invoking performStopActivity&quot;, t)"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorKtChecked.kt"/>
+    </issue>
+
+    <issue
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="            Log.e(LOG_TAG, &quot;Exception while fetching field values&quot;, t)"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorKtChecked.kt"/>
+    </issue>
+
+    <issue
+        id="MetadataTagInsideApplicationTag"
+        message="Detected &lt;application>-level meta-data tag."
+        errorLine1="        &lt;meta-data android:name=&quot;name&quot; android:value=&quot;value&quot; />"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="MissingServiceExportedEqualsTrue"
+        message="Missing exported=true in &lt;service> tag"
+        errorLine1="        &lt;service android:name=&quot;androidx.core.app.JobIntentService&quot;>"
+        errorLine2="        ^">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.NONE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) fun testMethodPrivate() {}"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.Companion.PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(VisibleForTesting.PRIVATE) fun testMethodValuePrivate() {}"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) fun testMethodProtected() {}"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @VisibleForTesting(otherwise = VisibleForTesting.NONE) fun testMethodPackageNone() {}"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesNonDefaultVisibleForTesting"
+        message="Found non-default `otherwise` value for @VisibleForTesting"
+        errorLine1="    @get:VisibleForTesting(NONE) val testPropertyGet = &quot;test&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/VisibleForTestingUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(androidx.annotation.RestrictTo.Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(Scope.TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(TESTS)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo({Scope.TESTS, Scope.LIBRARY})"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageJava.java"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.TESTS) fun testMethod() {}"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @RestrictTo(RestrictTo.Scope.TESTS, RestrictTo.Scope.LIBRARY) fun testMethodVarArg() {}"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="UsesRestrictToTestsScope"
+        message="Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`"
+        errorLine1="    @get:RestrictTo(RestrictTo.Scope.TESTS) val testPropertyGet = &quot;test&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RestrictToTestsAnnotationUsageKotlin.kt"/>
+    </issue>
+
+</issues>
