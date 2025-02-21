@@ -14,22 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.navigation
+package androidx.navigation.internal
 
-import androidx.annotation.RestrictTo
-import androidx.savedstate.SavedState
+import kotlinx.atomicfu.atomic
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public actual class NoOpNavigator
-actual constructor(): Navigator<NavDestination>("NoOp") {
-    public actual override fun createDestination(): NavDestination = NavDestination(this)
-
-    public actual override fun navigate(
-        destination: NavDestination,
-        args: SavedState?,
-        navOptions: NavOptions?,
-        navigatorExtras: Extras?
-    ): NavDestination = destination
-
-    public actual override fun popBackStack(): Boolean = true
+internal actual class AtomicInt actual constructor(initialValue: Int) {
+    private val delegate = atomic(initialValue)
+    actual fun incrementAndGet(): Int = delegate.incrementAndGet()
+    actual fun decrementAndGet(): Int = delegate.decrementAndGet()
+    actual fun get(): Int = delegate.value
 }
