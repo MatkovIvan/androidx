@@ -14,15 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform.l10n
+package androidx.navigation.compose.internal
 
-import androidx.compose.ui.platform.Strings
-import androidx.compose.ui.platform.Translations
-
-@Suppress("UnusedReceiverParameter", "DuplicatedCode")
-internal fun Translations.it() = mapOf(
-    Strings.NextPage to "Pagina successiva",
-    Strings.PreviousPage to "Pagina precedente",
-    Strings.FirstPage to "Prima pagina",
-    Strings.LastPage to "Ultima pagina",
-)
+internal actual typealias DefaultNavTransitions = StandardDefaultNavTransitions
