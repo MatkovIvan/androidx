@@ -34,8 +34,15 @@ plugins {
 
 androidXMultiplatform {
     androidTarget()
-    jvmStubs()
-    linuxX64Stubs()
+    desktop()
+    mingwX64()
+    linux()
+    mac()
+    ios()
+    tvos()
+    watchos()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -43,32 +50,24 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
-                implementation("androidx.collection:collection:1.4.2")
+                implementation("androidx.collection:collection:1.5.0")
                 api(project(":compose:runtime:runtime"))
             }
         }
 
         commonTest {
             dependencies {
-            }
-        }
-
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinCoroutinesTest)
             }
         }
 
         androidMain {
-            dependsOn(jvmMain)
+            dependsOn(commonMain)
             dependencies {
                 implementation(libs.kotlinStdlib)
                 api("androidx.annotation:annotation:1.8.1")
             }
-        }
-
-        jvmStubsMain {
-            dependsOn(jvmMain)
         }
 
         androidInstrumentedTest {
@@ -114,7 +113,7 @@ androidx {
     description = "Compose components that allow saving and restoring the local ui state"
     legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:runtime:runtime-saveable:runtime-saveable-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    kotlinTarget = KotlinTarget.KOTLIN_2_0
 }
 
 android {
