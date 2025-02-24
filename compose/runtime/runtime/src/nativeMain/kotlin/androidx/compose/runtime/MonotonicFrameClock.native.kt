@@ -25,7 +25,6 @@ import kotlinx.coroutines.yield
  *
  * This value is no longer used by compose runtime.
  */
-@Suppress("DEPRECATION")
 @Deprecated(
     "MonotonicFrameClocks are not globally applicable across platforms. " +
         "Use an appropriate local clock."
@@ -35,6 +34,8 @@ actual val DefaultMonotonicFrameClock: MonotonicFrameClock = object : MonotonicF
         onFrame: (Long) -> R
     ): R {
         yield()
+        // TODO: `getTimeNanos` is deprecated in 1.9 (error since 2.1)
+        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
         return onFrame(getTimeNanos())
     }
 }
