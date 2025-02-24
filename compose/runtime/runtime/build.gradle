@@ -26,6 +26,8 @@
 import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
@@ -35,8 +37,15 @@ plugins {
 
 androidXMultiplatform {
     androidTarget()
-    jvmStubs(/* runTests */ true)
-    linuxX64Stubs()
+    desktop()
+    mingwX64()
+    linux()
+    mac()
+    ios()
+    tvos()
+    watchos()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -45,13 +54,13 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 api(libs.kotlinCoroutinesCore)
-                implementation("androidx.collection:collection:1.5.0-beta03")
+                implementation(project(":collection:collection"))
             }
         }
 
         commonTest {
             dependencies {
-                implementation kotlin("test")
+                implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinReflect)
                 implementation(project(":compose:runtime:runtime-test-utils"))
@@ -112,18 +121,116 @@ androidXMultiplatform {
             dependsOn(commonMain)
         }
 
-        jvmStubsMain {
+        nonAndroidTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
             dependsOn(jvmMain)
             dependsOn(nonAndroidMain)
         }
 
-        jvmStubsTest {
+        desktopTest {
             dependsOn(jvmTest)
             dependsOn(nonEmulatorJvmTest)
+            dependsOn(nonAndroidTest)
         }
 
-        linuxx64StubsMain {
+        nonJvmMain {
             dependsOn(nonAndroidMain)
+            dependencies {
+                implementation(libs.atomicFu)
+            }
+        }
+
+        nonJvmTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        nativeMain {
+            dependsOn(nonAndroidMain)
+            dependsOn(nonJvmMain)
+        }
+
+        nativeTest {
+            dependsOn(nonAndroidTest)
+            dependsOn(nonJvmTest)
+            dependsOn(nonEmulatorCommonTest)
+        }
+
+        webMain {
+            dependsOn(nonJvmMain)
+        }
+
+        webTest {
+            dependsOn(nonJvmTest)
+        }
+
+        jsMain {
+            dependsOn(webMain)
+        }
+
+        jsTest {
+            dependsOn(webTest)
+            dependsOn(nonEmulatorCommonTest)
+            dependencies {
+                implementation(libs.kotlinTestJs)
+            }
+        }
+
+        wasmJsMain {
+            dependsOn(webMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                implementation(libs.kotlinXw3c)
+            }
+        }
+
+        wasmJsTest {
+            dependsOn(webTest)
+            dependsOn(nonEmulatorCommonTest)
+            dependencies {
+                implementation(libs.kotlinTestWasm)
+            }
+        }
+
+        unixMain {
+            dependsOn(nativeMain)
+        }
+
+        unixTest {
+            dependsOn(nativeTest)
+        }
+
+        darwinMain {
+            dependsOn(unixMain)
+        }
+
+        darwinTest {
+            dependsOn(unixTest)
+        }
+
+        linuxMain {
+            dependsOn(unixMain)
+        }
+
+        linuxTest {
+            dependsOn(unixTest)
+        }
+
+        targets.configureEach { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                if (target.konanTarget.family.appleFamily) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(darwinTest)
+                } else if (target.konanTarget.family == Family.LINUX) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(linuxTest)
+                } else {
+                    target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+                }
+            }
         }
     }
 }
@@ -148,5 +255,5 @@ androidx {
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = false
     samples(project(":compose:runtime:runtime:runtime-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }

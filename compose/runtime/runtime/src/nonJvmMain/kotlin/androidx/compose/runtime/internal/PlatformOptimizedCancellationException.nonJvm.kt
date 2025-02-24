@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,7 @@
 
 package androidx.compose.runtime.internal
 
-import kotlin.experimental.ExperimentalNativeApi
+import kotlinx.coroutines.CancellationException
 
-@OptIn(ExperimentalNativeApi::class)
-internal actual class WeakReference<T : Any> actual constructor(reference: T) {
-    private val kotlinNativeReference = kotlin.native.ref.WeakReference(reference)
-    actual fun get(): T? = kotlinNativeReference.get()
-}
+internal actual abstract class PlatformOptimizedCancellationException
+actual constructor(message: String?) : CancellationException(message)

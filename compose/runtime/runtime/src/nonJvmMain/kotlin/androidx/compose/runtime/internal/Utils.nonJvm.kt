@@ -25,10 +25,6 @@ internal actual fun logError(message: String, e: Throwable) {
     e.printStackTrace()
 }
 
-internal actual abstract class PlatformOptimizedCancellationException actual constructor(
-    message: String?
-) : CancellationException(message)
-
 internal actual fun invokeComposable(composer: Composer, composable: @Composable () -> Unit) {
     @Suppress("UNCHECKED_CAST")
     val realFn = composable as Function2<Composer, Int, Unit>

@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 
+@file:JvmName("SynchronizationKt")
+
 package androidx.compose.runtime
 
-import kotlin.DeprecationLevel.HIDDEN
-
-// TODO https://youtrack.jetbrains.com/issue/CMP-719/Make-expect-fun-identityHashCodeinstance-Any-Int-internal
-@InternalComposeApi
-@Deprecated("Made internal. It wasn't supposed to be public")
-fun identityHashCode(instance: Any?): Int =
-    androidx.compose.runtime.internal.identityHashCode(instance)
-
-internal class SynchronizedObject
+import kotlin.DeprecationLevel.*
 
 @PublishedApi
 @JvmName("synchronized")
@@ -32,5 +26,5 @@ internal class SynchronizedObject
     level = HIDDEN,
     message = "not expected to be referenced directly as the old version had to be inlined"
 )
-internal inline fun <R> oldSynchronized2(lock: SynchronizedObject, block: () -> R): R =
+internal inline fun <R> oldSynchronized(lock: SynchronizedObject, block: () -> R): R =
     androidx.compose.runtime.platform.synchronized(lock, block)

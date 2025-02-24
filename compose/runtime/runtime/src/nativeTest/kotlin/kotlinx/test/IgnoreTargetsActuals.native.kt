@@ -16,6 +16,6 @@
 
 package kotlinx.test
 
+annotation class DoNothing
+
 actual typealias IgnoreJsTarget = DoNothing
-actual typealias IgnoreNativeTarget = kotlin.test.Ignore
-actual typealias IgnoreJsAndNative = kotlin.test.Ignore

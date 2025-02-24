@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package kotlinx.test
+package androidx.compose.runtime.internal
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
+import kotlin.experimental.ExperimentalNativeApi
+import kotlin.native.identityHashCode
 
-actual suspend fun testWithTimeout(timeoutMs: Long, block: suspend CoroutineScope.() -> Unit) =
-    runBlocking {
-        // TODO: k/native tests run in debug mode and much-much slower than jvm,
-        // so we adjust for it here by multiplying by 10 :(
-        withTimeout(timeoutMs * 10, block)
-    }
+@OptIn(ExperimentalNativeApi::class)
+internal actual fun identityHashCode(instance: Any?): Int =
+    instance.identityHashCode()

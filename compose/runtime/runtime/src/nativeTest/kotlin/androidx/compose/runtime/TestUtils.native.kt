@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.compose.runtime.internal
+package androidx.compose.runtime
 
-import kotlin.experimental.ExperimentalNativeApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 
-@OptIn(ExperimentalNativeApi::class)
-internal actual class WeakReference<T : Any> actual constructor(reference: T) {
-    private val kotlinNativeReference = kotlin.native.ref.WeakReference(reference)
-    actual fun get(): T? = kotlinNativeReference.get()
-}
+actual suspend fun testWithTimeout(timeoutMs: Long, block: suspend CoroutineScope.() -> Unit) =
+    runBlocking {
+        // TODO: k/native tests run in debug mode and much-much slower than jvm,
+        // so we adjust for it here by multiplying by 10 :(
+        withTimeout(timeoutMs * 10, block)
+    }
