@@ -43,7 +43,13 @@ androidXMultiplatform {
             it.defaultSourceSetName = "androidUnitTest"
         }
     }
-    jvmStubs()
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
+
+    // TODO: Needs to be removed. Keep it for correct configuration of dependent modules.
     linuxX64Stubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
@@ -59,14 +65,16 @@ androidXMultiplatform {
 
         commonTest {
             dependencies {
-                implementation(kotlin("test-junit"))
+                implementation(libs.kotlinTest)
             }
         }
 
         jvmMain {
             dependsOn(commonMain)
-            dependencies {
-            }
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
         }
 
         androidMain {
@@ -76,23 +84,8 @@ androidXMultiplatform {
             }
         }
 
-        commonStubsMain {
-            dependsOn(commonMain)
-        }
-
-        jvmStubsMain {
-            dependsOn(jvmMain)
-            dependsOn(commonStubsMain)
-        }
-
-        linuxx64StubsMain {
-            dependsOn(commonStubsMain)
-        }
-
         androidInstrumentedTest {
             dependsOn(commonTest)
-            dependencies {
-            }
         }
 
         androidUnitTest {
@@ -108,6 +101,6 @@ androidx {
     description = "Compose classes related to dimensions without units"
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = false
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }
 

@@ -131,7 +131,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
                             supportedPlatforms.joinToString(", ") { it.id }
                     )
                 }
-                if (targetPlatforms.none { it == value }) {
+                if (targetPlatforms.none { it.equals(value, ignoreCase = true) }) {
                     throw GradleException(
                         "Platform $value is not available in this build " +
                             "environment. Available platforms are: " +
