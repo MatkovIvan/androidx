@@ -23,7 +23,7 @@ import androidx.build.dackka.docsPlatform
 import androidx.build.hasAndroidMultiplatformPlugin
 import androidx.build.multiplatformExtension
 import androidx.build.registerAsComponentForPublishing
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.LibraryVariant
 import com.google.gson.GsonBuilder
@@ -91,7 +91,7 @@ fun Project.configureSourceJarForAndroid(
 
 fun Project.configureMultiplatformSourcesForAndroid(
     variantName: String,
-    target: KotlinMultiplatformAndroidLibraryTarget,
+    target: KotlinMultiplatformAndroidTarget,
     samplesProjects: MutableCollection<Project>
 ) {
     val sourceJar =

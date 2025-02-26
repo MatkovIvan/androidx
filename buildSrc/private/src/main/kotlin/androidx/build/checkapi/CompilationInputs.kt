@@ -18,7 +18,7 @@ package androidx.build.checkapi
 
 import androidx.build.getAndroidJar
 import androidx.build.multiplatformExtension
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.LibraryVariant
 import org.gradle.api.Project
@@ -128,7 +128,7 @@ internal sealed interface CompilationInputs {
                 }
             val target =
                 kmpExtension.targets
-                    .withType(KotlinMultiplatformAndroidLibraryTarget::class.java)
+                    .withType(KotlinMultiplatformAndroidTarget::class.java)
                     .single()
             val compilation = target.findCompilation(KotlinCompilation.MAIN_COMPILATION_NAME)
 

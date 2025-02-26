@@ -50,9 +50,9 @@ import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.attributes.BuildTypeAttr
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.CommonExtension
-import com.android.build.api.dsl.KotlinMultiplatformAndroidDeviceTestCompilation
-import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilation
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnJvmCompilation
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.dsl.PrivacySandboxSdkExtension
 import com.android.build.api.dsl.TestBuildType
@@ -691,7 +691,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
     private fun configureWithKotlinMultiplatformAndroidPlugin(
         project: Project,
-        kotlinMultiplatformAndroidTarget: KotlinMultiplatformAndroidLibraryTarget,
+        kotlinMultiplatformAndroidTarget: KotlinMultiplatformAndroidTarget,
         androidXExtension: AndroidXExtension
     ) {
         val kotlinMultiplatformAndroidComponentsExtension =
@@ -1109,7 +1109,8 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         buildToolsVersion = project.defaultAndroidConfig.buildToolsVersion
 
-        defaultConfig.ndk.abiFilters.addAll(SUPPORTED_BUILD_ABIS)
+        // b/366238650
+        defaultConfig.ndk.abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
         defaultConfig.minSdk = defaultMinSdk
         defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -1170,7 +1171,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         )
     }
 
-    private fun KotlinMultiplatformAndroidLibraryTarget.configureAndroidBaseOptions(
+    private fun KotlinMultiplatformAndroidTarget.configureAndroidBaseOptions(
         project: Project,
         componentsExtension: KotlinMultiplatformAndroidComponentsExtension
     ) {
@@ -1184,13 +1185,13 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         lint.targetSdk = project.defaultAndroidConfig.targetSdk
         compilations
-            .withType(KotlinMultiplatformAndroidDeviceTestCompilation::class.java)
+            .withType(KotlinMultiplatformAndroidTestOnDeviceCompilation::class.java)
             .configureEach {
                 it.instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
                 it.animationsDisabled = true
             }
         compilations
-            .withType(KotlinMultiplatformAndroidHostTestCompilation::class.java)
+            .withType(KotlinMultiplatformAndroidTestOnJvmCompilation::class.java)
             .configureEach {
                 it.isReturnDefaultValues = true
                 // Include resources in Robolectric tests as a workaround for b/184641296
@@ -1461,9 +1462,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         const val TASK_GROUP_API = "API"
 
         const val EXTENSION_NAME = "androidx"
-
-        // b/366238650
-        val SUPPORTED_BUILD_ABIS = listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
 
         /** Fail the build if a non-Studio task runs longer than expected */
         const val TASK_TIMEOUT_MINUTES = 60L

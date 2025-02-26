@@ -15,7 +15,7 @@
  */
 package androidx.build
 
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.dsl.Lint
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.gradle.AppPlugin
@@ -81,7 +81,7 @@ private fun Project.configureAndroidProjectForLint(isLibrary: Boolean) =
     }
 
 private fun Project.configureAndroidMultiplatformProjectForLint(
-    extension: KotlinMultiplatformAndroidLibraryTarget,
+    extension: KotlinMultiplatformAndroidTarget,
     componentsExtension: KotlinMultiplatformAndroidComponentsExtension
 ) {
     componentsExtension.finalizeDsl {

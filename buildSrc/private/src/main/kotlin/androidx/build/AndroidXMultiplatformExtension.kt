@@ -22,7 +22,7 @@ import androidx.build.clang.AndroidXClang
 import androidx.build.clang.MultiTargetNativeCompilation
 import androidx.build.clang.NativeLibraryBundler
 import androidx.build.clang.configureCinterop
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
 import groovy.lang.Closure
 import java.io.File
@@ -76,10 +76,10 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         // make sure to initialize the kotlin extension by accessing the property
         val extension = (kotlinExtension as ExtensionAware)
         project.plugins.apply(KotlinMultiplatformAndroidPlugin::class.java)
-        extension.extensions.getByType(KotlinMultiplatformAndroidLibraryTarget::class.java)
+        extension.extensions.getByType(KotlinMultiplatformAndroidTarget::class.java)
     }
 
-    val agpKmpExtension: KotlinMultiplatformAndroidLibraryTarget by agpKmpExtensionDelegate
+    val agpKmpExtension: KotlinMultiplatformAndroidTarget by agpKmpExtensionDelegate
 
     /**
      * The list of platforms that have been declared as supported in the build configuration.
@@ -418,8 +418,8 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     @JvmOverloads
     fun androidLibrary(
-        block: Action<KotlinMultiplatformAndroidLibraryTarget>? = null
-    ): KotlinMultiplatformAndroidLibraryTarget? {
+        block: Action<KotlinMultiplatformAndroidTarget>? = null
+    ): KotlinMultiplatformAndroidTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID)
         return if (project.enableJvm()) {
             agpKmpExtension.also { block?.execute(it) }

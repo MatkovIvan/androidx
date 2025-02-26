@@ -50,8 +50,6 @@ dependencies {
     })
 
     lintPublish(project(":activity:activity-lint"))
-
-    baselineProfile(project(":activity:integration-tests:baselineprofile"))
 }
 
 androidx {

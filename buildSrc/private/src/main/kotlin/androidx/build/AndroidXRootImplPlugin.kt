@@ -64,23 +64,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         configureKtfmtCheckFile()
         maybeRegisterFilterableTask()
 
-        // If we're running inside Studio, validate the Android Gradle Plugin version.
-        val expectedAgpVersion = System.getenv("EXPECTED_AGP_VERSION")
-        if (providers.gradleProperty("android.injected.invoked.from.ide").isPresent) {
-            if (expectedAgpVersion != ANDROID_GRADLE_PLUGIN_VERSION) {
-                throw GradleException(
-                    """
-                    Please close and restart Android Studio.
-
-                    Expected AGP version \"$expectedAgpVersion\" does not match actual AGP version
-                    \"$ANDROID_GRADLE_PLUGIN_VERSION\". This happens when AGP is updated while
-                    Studio is running and can be fixed by restarting Studio.
-                    """
-                        .trimIndent()
-                )
-            }
-        }
-
         val verifyPlayground = VerifyPlaygroundGradleConfigurationTask.createIfNecessary(project)
 
         val aggregateBuildInfo =
@@ -101,12 +84,12 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         extra.set("projects", ConcurrentHashMap<String, String>())
 
         /**
-         * Copy App APKs (from ApkOutputProviders) into [getTestConfigDirectory] before zipping.
-         * Flatten directory hierarchy as both TradeFed and FTL work with flat hierarchy.
+         * Copy PrivacySandbox related APKs into [getTestConfigDirectory] before zipping. Flatten
+         * directory hierarchy as both TradeFed and FTL work with flat hierarchy.
          */
         val finalizeConfigsTask =
             project.tasks.register(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK, Copy::class.java) {
-                it.from(project.getAppApksFilesDirectory())
+                it.from(project.getPrivacySandboxFilesDirectory())
                 it.into(project.getTestConfigDirectory())
                 it.eachFile { f -> f.relativePath = RelativePath(true, f.name) }
                 it.includeEmptyDirs = false
