@@ -258,6 +258,7 @@ private data class ComputedStyle(
 // most of the computations before converting Compose paragraph styles to Skia paragraph
 private val skTextStylesCache = WeakKeysCache<ComputedStyle, SkTextStyle>()
 
+@OptIn(ExperimentalTextApi::class)
 internal class ParagraphBuilder(
     val fontFamilyResolver: FontFamily.Resolver,
     val text: String,
@@ -659,6 +660,7 @@ fun FontStyle.toSkFontStyle(): SkFontStyle {
     }
 }
 
+@OptIn(ExperimentalTextApi::class)
 @Suppress("unused")
 @Deprecated(
     message = "This method was not intended to be public",
@@ -668,6 +670,7 @@ fun TextDecoration.toSkDecorationStyle(color: Color): SkDecorationStyle {
     return toSkDecorationStyle(color, null)
 }
 
+@OptIn(ExperimentalTextApi::class)
 private fun TextDecoration.toSkDecorationStyle(
     color: Color,
     textDecorationLineStyle: TextDecorationLineStyle?
@@ -690,6 +693,7 @@ private fun TextDecoration.toSkDecorationStyle(
     )
 }
 
+@OptIn(ExperimentalTextApi::class)
 private fun TextDecorationLineStyle.toSkDecorationLineStyle(): SkDecorationLineStyle {
     return when (this) {
         TextDecorationLineStyle.Solid -> SkDecorationLineStyle.SOLID
