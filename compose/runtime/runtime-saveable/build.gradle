@@ -99,12 +99,6 @@ androidXMultiplatform {
                 implementation(libs.truth)
             }
         }
-
-        wasmJsMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-            }
-        }
     }
 }
 
