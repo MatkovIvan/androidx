@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.graphics.internal
+package androidx.compose.ui.input.pointer.util
 
-@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
-internal actual typealias JvmDefaultWithCompatibility = kotlin.jvm.JvmDefaultWithCompatibility
+import androidx.compose.ui.implementedInJetBrainsFork
+
+internal actual const val HistorySize: Int = 0
+
+internal actual fun VelocityTracker1D.shouldUseDataPoints(
+    points: FloatArray,
+    times: FloatArray,
+    count: Int,
+    afterPointerStop: Boolean
+): Boolean = implementedInJetBrainsFork()

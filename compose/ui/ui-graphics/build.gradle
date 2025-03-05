@@ -187,6 +187,10 @@ androidXMultiplatform {
         }
 
         targets.configureEach { target ->
+
+            // TODO: Ignore stubs. Remove together with stubs target
+            if (target.name.endsWith("Stubs")) return
+
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
                 target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)

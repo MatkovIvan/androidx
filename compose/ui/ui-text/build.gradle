@@ -132,6 +132,7 @@ androidXMultiplatform {
             dependsOn(commonMain)
             dependencies {
                 api(libs.skiko)
+                implementation(libs.atomicFu)
             }
         }
 
@@ -225,6 +226,10 @@ androidXMultiplatform {
         }
 
         targets.configureEach { target ->
+
+            // TODO: Ignore stubs. Remove together with stubs target
+            if (target.name.endsWith("Stubs")) return
+
             if (target.platformType == KotlinPlatformType.native) {
                 if (target.konanTarget.family == Family.IOS) {
                     target.compilations["main"].defaultSourceSet.dependsOn(uikitMain)
@@ -243,6 +248,11 @@ androidXMultiplatform {
                 target.compilations["main"].defaultSourceSet.dependsOn(webMain)
                 target.compilations["test"].defaultSourceSet.dependsOn(webTest)
             }
+        }
+
+        // TODO: Align it with AOSP or make explicit
+        configureEach {
+            languageSettings.optIn("androidx.compose.ui.text.ExperimentalTextApi")
         }
 
         // TODO: Needs to be removed. Keep it for correct configuration of dependent modules.
