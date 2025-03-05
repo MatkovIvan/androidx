@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.viewmodel.compose
+package androidx.lifecycle
 
-import androidx.compose.runtime.Composable
-import androidx.lifecycle.ViewModelStoreOwner
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.promise
+import kotlinx.coroutines.test.TestResult
 
-@Composable internal actual fun findViewTreeViewModelStoreOwner(): ViewModelStoreOwner? = null
+actual fun runLifecycleTest(block: suspend CoroutineScope.() -> Unit): TestResult =
+    MainScope().promise { block() }

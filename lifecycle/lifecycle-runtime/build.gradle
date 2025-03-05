@@ -6,6 +6,8 @@
  * modifying its settings.
  */
 
+
+import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -18,9 +20,14 @@ plugins {
 androidXMultiplatform {
     androidTarget()
     desktop()
-    mac()
+    mingwX64()
     linux()
+    mac()
     ios()
+    tvos()
+    watchos()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -29,7 +36,7 @@ androidXMultiplatform {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(project(":lifecycle:lifecycle-common"))
-                api("androidx.annotation:annotation:1.8.1")
+                api("androidx.annotation:annotation:1.9.1")
             }
         }
 
@@ -96,6 +103,10 @@ androidXMultiplatform {
             dependsOn(commonMain)
         }
 
+        nonJvmCommonTest {
+            dependsOn(commonTest)
+        }
+
         nativeMain {
             dependsOn(nonJvmCommonMain)
 
@@ -104,7 +115,15 @@ androidXMultiplatform {
         }
 
         nativeTest {
-            dependsOn(commonTest)
+            dependsOn(nonJvmCommonTest)
+        }
+
+        webMain {
+            dependsOn(nonJvmCommonMain)
+        }
+
+        webTest {
+            dependsOn(nonJvmCommonTest)
         }
 
         targets.configureEach { target ->
@@ -118,6 +137,9 @@ androidXMultiplatform {
                 target.compilations["test"].defaultSourceSet {
                     dependsOn(nativeTest)
                 }
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
             }
         }
     }
@@ -146,4 +168,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Lifecycle Runtime"
+    kotlinTarget = KotlinTarget.KOTLIN_2_0
 }
