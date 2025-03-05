@@ -14,16 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui
+package androidx.compose.ui.test.internal
 
-import kotlin.system.getTimeMillis
-
-internal actual fun areObjectsOfSameType(a: Any, b: Any): Boolean {
-    return a::class == b::class
-}
-
-internal actual fun currentTimeMillis(): Long {
-    @Suppress("DEPRECATION", "DEPRECATION_ERROR") // TODO: Avoid using deprecated function
-    return getTimeMillis()
-}
-
+internal actual fun identityHashCode(instance: Any?): Int = System.identityHashCode(instance)

@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.DurationUnit
 import kotlinx.cinterop.CValue
+import kotlinx.cinterop.ObjCSignatureOverride
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
 import kotlinx.coroutines.MainScope
@@ -360,11 +361,13 @@ internal class IntermediateTextInputUIView(
         return (toPosition.position - from.position).toLong()
     }
 
+    @ObjCSignatureOverride
     override fun positionWithinRange(
         range: UITextRange,
         atCharacterOffset: NSInteger
     ): UITextPosition? = null // TODO positionWithinRange
 
+    @ObjCSignatureOverride
     override fun positionWithinRange(
         range: UITextRange,
         farthestInDirection: UITextLayoutDirection
