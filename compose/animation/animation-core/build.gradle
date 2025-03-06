@@ -26,6 +26,7 @@
 import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
@@ -35,7 +36,13 @@ plugins {
 
 androidXMultiplatform {
     androidTarget()
-    jvmStubs()
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
+
+    // TODO: Needs to be removed. Keep it for correct configuration of dependent modules.
     linuxX64Stubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
@@ -56,7 +63,7 @@ androidXMultiplatform {
 
         commonTest {
             dependencies {
-                implementation(kotlin("test"))
+                implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(project(":kruth:kruth"))
             }
@@ -64,8 +71,10 @@ androidXMultiplatform {
 
         jvmMain {
             dependsOn(commonMain)
-            dependencies {
-            }
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
         }
 
         androidMain {
@@ -73,18 +82,6 @@ androidXMultiplatform {
             dependencies {
                 api("androidx.annotation:annotation:1.8.1")
             }
-        }
-
-        commonStubsMain {
-            dependsOn(commonMain)
-        }
-
-        jvmStubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        linuxx64StubsMain {
-            dependsOn(commonStubsMain)
         }
 
         androidInstrumentedTest {
@@ -106,7 +103,7 @@ androidXMultiplatform {
         }
 
         androidUnitTest {
-            dependsOn(commonTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
@@ -114,6 +111,73 @@ androidXMultiplatform {
                 implementation(libs.truth)
                 implementation(libs.kotlinCoroutinesCore)
             }
+        }
+
+        // TODO: Align naming: nonAndroidMain
+        jbMain {
+            dependsOn(commonMain)
+        }
+
+        jbTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
+            dependsOn(jvmMain)
+            dependsOn(jbMain)
+        }
+
+        desktopTest {
+            dependsOn(jvmTest)
+            dependsOn(jbTest)
+        }
+
+        // TODO: Align naming: nonJvmMain
+        jsNativeMain {
+            dependsOn(jbMain)
+        }
+
+        jsNativeTest {
+            dependsOn(jbTest)
+        }
+
+        nativeMain {
+            dependsOn(jsNativeMain)
+        }
+
+        nativeTest {
+            dependsOn(jsNativeTest)
+        }
+
+        webMain {
+            dependsOn(jsNativeMain)
+        }
+
+        webTest {
+            dependsOn(jsNativeTest)
+        }
+
+        targets.configureEach { target ->
+
+            // TODO: Ignore stubs. Remove together with stubs target
+            if (target.name.endsWith("Stubs")) return
+
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
+            }
+        }
+
+        // TODO: Needs to be removed. Keep it for correct configuration of dependent modules.
+        commonStubsMain {
+            dependsOn(commonMain)
+        }
+
+        linuxx64StubsMain {
+            dependsOn(commonStubsMain)
         }
     }
 }
@@ -129,7 +193,7 @@ androidx {
     description = "Animation engine and animation primitives that are the building blocks of the Compose animation library"
     metalavaK2UastEnabled = false
     samples(project(":compose:animation:animation-core:animation-core-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    kotlinTarget = KotlinTarget.KOTLIN_2_0
 }
 
 android {

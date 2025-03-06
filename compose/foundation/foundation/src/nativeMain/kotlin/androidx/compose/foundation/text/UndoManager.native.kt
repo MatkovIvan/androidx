@@ -16,4 +16,7 @@
 
 package androidx.compose.foundation.text
 
-internal actual fun timeNowMillis(): Long = kotlin.system.getTimeMillis()
+internal actual fun timeNowMillis(): Long {
+    @Suppress("DEPRECATION", "DEPRECATION_ERROR") // TODO: Avoid using deprecated function
+    return kotlin.system.getTimeMillis()
+}
