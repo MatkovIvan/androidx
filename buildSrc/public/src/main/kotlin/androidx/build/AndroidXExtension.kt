@@ -175,6 +175,7 @@ abstract class AndroidXExtension(
                 projectPath.replace(":external:", "")
             } else {
                 "androidx.${parentPath.substring(1).replace(':', '.')}"
+                    .appendJetBrainsGroupPrefix()
             }
 
         // get the library group having that text
@@ -477,3 +478,10 @@ abstract class DeviceTests {
      */
     var enableAlsoRunningOnPhysicalDevices = false
 }
+
+private fun String.appendJetBrainsGroupPrefix() =
+    if (startsWith("androidx.compose")) {
+        replaceFirst("androidx.compose", "org.jetbrains.compose")
+    } else {
+        replaceFirst("androidx", "org.jetbrains.androidx")
+    }
