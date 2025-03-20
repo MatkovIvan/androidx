@@ -135,6 +135,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
             // get group name
             val groupDefinition = groups.getTable(name)!!
             val groupName = groupDefinition.getString("group")!!
+                .appendJetBrainsGroupPrefix()
 
             // get group version, if any
             val atomicGroupVersion =
@@ -190,4 +191,11 @@ private val ALLOWED_ATOMIC_GROUP_EXCEPTIONS =
         "androidx.compose.material3",
         "androidx.lifecycle",
         "androidx.tracing"
-    )
+    ).map { it.appendJetBrainsGroupPrefix() }
+
+private fun String.appendJetBrainsGroupPrefix() =
+    if (startsWith("androidx.compose")) {
+        replaceFirst("androidx.compose", "org.jetbrains.compose")
+    } else {
+        replaceFirst("androidx", "org.jetbrains.androidx")
+    }
