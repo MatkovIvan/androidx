@@ -25,7 +25,7 @@
 import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
@@ -47,7 +47,13 @@ androidXMultiplatform {
         compileSdk = 35
         aarMetadata.minCompileSdk = 35
     }
-    jvmStubs()
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
+
+    // TODO: Needs to be removed. Keep it for correct configuration of dependent modules.
     linuxX64Stubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
@@ -56,24 +62,27 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
-                implementation("androidx.compose.ui:ui-util:1.7.1")
-                api("androidx.compose.foundation:foundation:1.7.1")
-                api("androidx.compose.foundation:foundation-layout:1.7.1")
+                implementation(project(":compose:ui:ui-util"))
+                api(project(":compose:foundation:foundation"))
+                api(project(":compose:foundation:foundation-layout"))
                 api(project(":compose:runtime:runtime"))
-                api("androidx.compose.ui:ui-graphics:1.7.1")
-                api("androidx.compose.ui:ui-text:1.7.1")
+                api(project(":compose:ui:ui-graphics"))
+                api(project(":compose:ui:ui-text"))
             }
         }
 
         commonTest {
             dependencies {
+                implementation(libs.kotlinTest)
             }
         }
 
         jvmMain {
             dependsOn(commonMain)
-            dependencies {
-            }
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
         }
 
         androidMain {
@@ -83,20 +92,8 @@ androidXMultiplatform {
             }
         }
 
-        commonStubsMain {
-            dependsOn(commonMain)
-        }
-
-        jvmStubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        linuxx64StubsMain {
-            dependsOn(commonStubsMain)
-        }
-
         androidInstrumentedTest {
-            dependsOn(commonTest)
+            dependsOn(jvmTest)
             dependencies {
                 implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:material3:material3-common"))
@@ -106,6 +103,60 @@ androidXMultiplatform {
                 implementation(libs.junit)
                 implementation(libs.truth)
             }
+        }
+
+        desktopMain {
+            dependsOn(jvmMain)
+        }
+
+        desktopTest {
+            dependsOn(jvmTest)
+        }
+
+        nonJvmMain {
+            dependsOn(commonMain)
+        }
+
+        nonJvmTest {
+            dependsOn(commonTest)
+        }
+
+        nativeMain {
+            dependsOn(nonJvmMain)
+        }
+
+        nativeTest {
+            dependsOn(nonJvmTest)
+        }
+
+        webMain {
+            dependsOn(nonJvmMain)
+        }
+
+        webTest {
+            dependsOn(nonJvmTest)
+        }
+
+        targets.configureEach { target ->
+
+            // TODO: Ignore stubs. Remove together with stubs target
+            if (target.name.endsWith("Stubs")) return
+
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
+            }
+        }
+
+        // TODO: Needs to be removed. Keep it for correct configuration of dependent modules.
+        commonStubsMain {
+            dependsOn(commonMain)
+        }
+        linuxx64StubsMain {
+            dependsOn(commonStubsMain)
         }
     }
 }
@@ -121,5 +172,5 @@ androidx {
             " developers. It builds upon the Jetpack Compose libraries."
     legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:material3:material3-common:material3-common-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }
