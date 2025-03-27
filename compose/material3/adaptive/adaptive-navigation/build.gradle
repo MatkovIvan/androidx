@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
@@ -100,6 +102,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2023"
     description = "Compose Material Design Adaptive Library"
+    kotlinTarget = KotlinTarget.KOTLIN_2_0
     legacyDisableKotlinStrictApiMode = true
 }
 
