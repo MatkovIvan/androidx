@@ -18,8 +18,6 @@ package androidx.navigation
 
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
-import androidx.savedstate.SavedState
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.Lifecycle
@@ -32,9 +30,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.enableSavedStateHandles
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
@@ -43,7 +45,6 @@ import androidx.savedstate.savedState
 import kotlin.experimental.and
 import kotlin.experimental.or
 import kotlin.random.Random
-import kotlin.reflect.KClass
 
 public actual class NavBackStackEntry
 private constructor(
@@ -60,7 +61,7 @@ private constructor(
     SavedStateRegistryOwner {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    actual constructor(
+    public actual constructor(
         entry: NavBackStackEntry,
         arguments: SavedState?
     ) : this(
@@ -94,7 +95,7 @@ private constructor(
         )
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun randomId(): String = randomUUID()
+        public fun randomId(): String = randomUUID()
     }
 
     private var _lifecycle = LifecycleRegistry(this)
@@ -120,7 +121,7 @@ private constructor(
             "You cannot access the NavBackStackEntry's SavedStateHandle after the " +
                 "NavBackStackEntry is destroyed."
         }
-        ViewModelProvider.create(this, NavResultSavedStateFactory(this))
+        ViewModelProvider.create(this, navResultSavedStateFactory)
             .get(SavedStateViewModel::class)
             .handle
     }
@@ -179,9 +180,10 @@ private constructor(
             return viewModelStoreProvider.getViewModelStore(id)
         }
 
-    public actual override val defaultViewModelProviderFactory = object : ViewModelProvider.Factory {
-        // TODO: Use NewInstanceFactory for JVM once it will be public
-    }
+    public actual override val defaultViewModelProviderFactory: ViewModelProvider.Factory =
+        object : ViewModelProvider.Factory {
+            // TODO: Use NewInstanceFactory for JVM once it will be public
+        }
 
     public actual override val defaultViewModelCreationExtras: CreationExtras
         get() {
@@ -234,16 +236,10 @@ private constructor(
         return sb.toString()
     }
 
-    private class NavResultSavedStateFactory(owner: SavedStateRegistryOwner) :
-        AbstractSavedStateViewModelFactory(owner, null) {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(
-            key: String,
-            modelClass: KClass<T>,
-            handle: SavedStateHandle
-        ): T {
-            return SavedStateViewModel(handle) as T
-        }
+
+    /** Used to create the {SavedStateViewModel} */
+    private val navResultSavedStateFactory by lazy {
+        viewModelFactory { initializer { SavedStateViewModel(createSavedStateHandle()) } }
     }
 
     private class SavedStateViewModel(val handle: SavedStateHandle) : ViewModel()
