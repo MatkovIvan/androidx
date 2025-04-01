@@ -16,6 +16,11 @@
 
 package androidx.navigation.internal
 
-import androidx.navigation.implementedInJetBrainsFork
+import kotlinx.atomicfu.atomic
 
-internal actual fun identityHashCode(instance: Any?): Int = implementedInJetBrainsFork()
+internal actual class AtomicInt actual constructor(initialValue: Int) {
+    private val delegate = atomic(initialValue)
+    actual fun incrementAndGet(): Int = delegate.incrementAndGet()
+    actual fun decrementAndGet(): Int = delegate.decrementAndGet()
+    actual fun get(): Int = delegate.value
+}

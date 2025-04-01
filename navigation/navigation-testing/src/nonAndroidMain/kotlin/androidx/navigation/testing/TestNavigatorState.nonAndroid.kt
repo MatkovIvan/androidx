@@ -40,10 +40,10 @@ public actual class TestNavigatorState actual constructor() : NavigatorState() {
     private val savedStates = mutableMapOf<String, SavedState>()
     private val entrySavedState = mutableMapOf<NavBackStackEntry, Boolean>()
 
-    override fun createBackStackEntry(
+    public override fun createBackStackEntry(
         destination: NavDestination,
         arguments: SavedState?
-    ) = NavBackStackEntry.create(
+    ): NavBackStackEntry = NavBackStackEntry.create(
         destination, arguments,
         Lifecycle.State.RESUMED, viewModelStoreProvider
     )

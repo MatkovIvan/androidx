@@ -24,6 +24,7 @@
 
 import androidx.build.PlatformIdentifier
 import androidx.build.SoftwareType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
