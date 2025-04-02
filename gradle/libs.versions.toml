@@ -25,8 +25,8 @@ androidxTestMonitor = "1.8.0-alpha01"
 androidxTestCore = "1.7.0-alpha01"
 androidxTestExtJunit = "1.3.0-alpha01"
 androidxTestExtTruth = "1.7.0-alpha01"
-annotationVersion = "1.7.0"
-atomicFu = "0.17.0"
+annotationVersion = "1.9.1"
+atomicFu = "0.27.0"
 autoService = "1.0-rc6"
 autoValue = "1.6.3"
 binaryCompatibilityValidator = "0.16.2"
@@ -52,13 +52,13 @@ kotlin18 = "1.8.22"
 kotlin19 = "1.9.24"
 kotlin = "2.1.10"
 kotlinBenchmark = "0.4.11"
-kotlinGradlePluginAnnotations = "1.9.24"
-kotlinGradlePluginApi = "1.9.24"
+kotlinGradlePluginAnnotations = "2.1.10"
+kotlinGradlePluginApi = "2.1.10"
 kotlinCompileTesting = "1.4.9"
-kotlinCoroutines = "1.7.3"
-kotlinNativeUtils = "1.9.24"
-kotlinSerialization = "1.6.3"
-kotlinToolingCore = "1.9.24"
+kotlinCoroutines = "1.8.1"
+kotlinNativeUtils = "2.1.10"
+kotlinSerialization = "1.8.0"
+kotlinToolingCore = "2.1.10"
 ksp = "2.1.10-1.0.31"
 ktfmt = "0.50"
 # Version format is: 1.KOTLIN_MAJOR_VERSION.0.KTFMT_VERSION
@@ -223,17 +223,17 @@ kotlinSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serializatio
 kotlinSerializationJsonOkio = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-okio", version.ref = "kotlinSerialization" }
 kotlinSerializationProtobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinSerialization" }
 kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
-kotlinStdlibCommon = { module = "org.jetbrains.kotlin:kotlin-stdlib-common" }
-kotlinStdlibJdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
-kotlinStdlibJs = { module = "org.jetbrains.kotlin:kotlin-stdlib-js" }
-kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test" }
-kotlinTestForWasmTests = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
-kotlinTestAnnotationsCommon = { module = "org.jetbrains.kotlin:kotlin-test-annotations-common" }
-kotlinTestCommon = { module = "org.jetbrains.kotlin:kotlin-test-common" }
-kotlinTestJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit" }
-kotlinTestJs = { module = "org.jetbrains.kotlin:kotlin-test-js" }
-kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
+kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlinStdlibCommon = { module = "org.jetbrains.kotlin:kotlin-stdlib-common", version.ref = "kotlin" }
+kotlinStdlibJdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
+kotlinStdlibJs = { module = "org.jetbrains.kotlin:kotlin-stdlib-js", version.ref = "kotlin" }
+kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlinTestAnnotationsCommon = { module = "org.jetbrains.kotlin:kotlin-test-annotations-common", version.ref = "kotlin" }
+kotlinTestCommon = { module = "org.jetbrains.kotlin:kotlin-test-common", version.ref = "kotlin" }
+kotlinTestJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+kotlinTestJs = { module = "org.jetbrains.kotlin:kotlin-test-js", version.ref = "kotlin" }
+kotlinTestWasm = { module = "org.jetbrains.kotlin:kotlin-test-wasm-js", version.ref = "kotlin" }
+kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlinPoet = { module = "com.squareup:kotlinpoet", version = "2.1.0" }
 kotlinPoetJavaPoet = { module = "com.squareup:kotlinpoet-javapoet", version = "2.1.0" }
 ksp = { module = "com.google.devtools.ksp:symbol-processing", version.ref = "ksp" }
