@@ -16,6 +16,4 @@
 
 package androidx.compose.ui.graphics
 
-actual class NativePaint
-
 actual fun Paint(): Paint = implementedInJetBrainsFork()

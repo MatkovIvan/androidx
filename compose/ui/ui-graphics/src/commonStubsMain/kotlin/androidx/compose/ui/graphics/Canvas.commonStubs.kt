@@ -16,9 +16,4 @@
 
 package androidx.compose.ui.graphics
 
-actual class NativeCanvas
-
 internal actual fun ActualCanvas(image: ImageBitmap): Canvas = implementedInJetBrainsFork()
-
-actual val Canvas.nativeCanvas: NativeCanvas
-    get() = implementedInJetBrainsFork()
