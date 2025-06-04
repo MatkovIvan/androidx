@@ -20,9 +20,23 @@ import android.graphics.PorterDuffXfermode
 import android.os.Build
 import androidx.annotation.RequiresApi
 
-actual typealias NativePaint = android.graphics.Paint
+@Deprecated(
+    message = "Use android.graphics.Paint directly instead",
+    replaceWith = ReplaceWith("android.graphics.Paint"),
+)
+typealias NativePaint = android.graphics.Paint
+
+// TODO: Extension is not really compatible replacement for removing method from interface
+@Deprecated(
+    message = "Use nativePaint extension instead",
+    replaceWith = ReplaceWith("nativePaint"),
+)
+fun Paint.asFrameworkPaint(): android.graphics.Paint = nativePaint
 
 actual fun Paint(): Paint = AndroidPaint()
+
+val Paint.nativePaint: android.graphics.Paint
+    get() = (this as AndroidPaint).internalPaint
 
 /** Convert an [android.graphics.Paint] instance into a Compose-compatible Paint */
 fun android.graphics.Paint.asComposePaint(): Paint = AndroidPaint(this)
@@ -33,7 +47,8 @@ fun android.graphics.Paint.asComposePaint(): Paint = AndroidPaint(this)
  *
  * @param internalPaint [android.graphics.Paint] to be wrapped by the [AndroidPaint] instance
  */
-class AndroidPaint(private var internalPaint: android.graphics.Paint) : Paint {
+// TODO: This class shouldn't be public at all
+class AndroidPaint(internal var internalPaint: android.graphics.Paint) : Paint {
 
     /** Create a new [AndroidPaint] instance backed by a newly created [android.graphics.Paint] */
     constructor() : this(makeNativePaint())
@@ -42,7 +57,11 @@ class AndroidPaint(private var internalPaint: android.graphics.Paint) : Paint {
     private var internalShader: Shader? = null
     private var internalColorFilter: ColorFilter? = null
 
-    override fun asFrameworkPaint(): NativePaint = internalPaint
+    @Deprecated(
+        message = "Use nativePaint extension instead",
+        replaceWith = ReplaceWith("nativePaint"),
+    )
+    fun asFrameworkPaint(): android.graphics.Paint = internalPaint
 
     override var alpha: Float
         get() = internalPaint.getNativeAlpha()
@@ -248,7 +267,7 @@ internal fun NativePaint.setNativeFilterQuality(value: FilterQuality) {
 }
 
 internal fun NativePaint.setNativeShader(value: Shader?) {
-    this.shader = value
+    this.shader = value?.nativeShader
 }
 
 internal fun NativePaint.setNativePathEffect(value: PathEffect?) {

@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.asComposeShader
 import androidx.compose.ui.graphics.vector.DefaultPivotX
 import androidx.compose.ui.graphics.vector.DefaultPivotY
 import androidx.compose.ui.graphics.vector.DefaultRotation
@@ -392,7 +393,7 @@ internal fun AndroidVectorParser.parsePath(
 
 private fun obtainBrushFromComplexColor(complexColor: ComplexColorCompat): Brush? =
     if (complexColor.willDraw()) {
-        val shader = complexColor.shader
+        val shader = complexColor.shader?.asComposeShader()
         if (shader != null) {
             ShaderBrush(shader)
         } else {

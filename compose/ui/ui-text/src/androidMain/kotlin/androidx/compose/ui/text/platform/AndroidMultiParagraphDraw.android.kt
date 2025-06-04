@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.nativeShader
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.DrawStyle
@@ -56,7 +57,7 @@ internal actual fun MultiParagraph.drawMultiParagraph(
                 }
                 val shader = brush.createShader(Size(width, height))
                 val matrix = Matrix()
-                shader.getLocalMatrix(matrix)
+                shader.nativeShader.getLocalMatrix(matrix)
                 paragraphInfoList.fastForEach {
                     it.paragraph.paint(
                         canvas = canvas,
@@ -69,7 +70,7 @@ internal actual fun MultiParagraph.drawMultiParagraph(
                     )
                     canvas.translate(0f, it.paragraph.height)
                     matrix.setTranslate(0f, -it.paragraph.height)
-                    shader.setLocalMatrix(matrix)
+                    shader.nativeShader.setLocalMatrix(matrix)
                 }
             }
         }

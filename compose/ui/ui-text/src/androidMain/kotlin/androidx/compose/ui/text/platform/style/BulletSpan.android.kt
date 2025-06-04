@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.asAndroidPathEffect
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.nativeShader
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -196,7 +197,7 @@ private fun Paint.setBrushAndDraw(brush: Brush?, alpha: Float, size: Size, draw:
                 if (!alpha.isNaN()) {
                     this.alpha.also { this.alpha = kotlin.math.round(alpha * 255.0f).toInt() }
                 } else null
-            this.setShader(brush.createShader(size))
+            this.setShader(brush.createShader(size).nativeShader)
             draw()
             this.setShader(currentShader)
             currentAlpha?.let { this.alpha = it }

@@ -26,7 +26,16 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.util.fastForEachIndexed
 
-actual typealias Shader = android.graphics.Shader
+private class AndroidShader(
+    val internalShader: android.graphics.Shader
+) : Shader
+
+fun Shader(androidShader: android.graphics.Shader): Shader = AndroidShader(androidShader)
+
+val Shader.nativeShader: android.graphics.Shader
+    get() = (this as AndroidShader).internalShader
+
+fun android.graphics.Shader.asComposeShader(): Shader = Shader(this)
 
 internal actual fun ActualLinearGradientShader(
     from: Offset,
@@ -45,7 +54,7 @@ internal actual fun ActualLinearGradientShader(
         makeTransparentColors(colors, numTransparentColors),
         makeTransparentStops(colorStops, colors, numTransparentColors),
         tileMode.toAndroidTileMode(),
-    )
+    ).asComposeShader()
 }
 
 internal actual fun ActualRadialGradientShader(
@@ -64,7 +73,7 @@ internal actual fun ActualRadialGradientShader(
         makeTransparentColors(colors, numTransparentColors),
         makeTransparentStops(colorStops, colors, numTransparentColors),
         tileMode.toAndroidTileMode(),
-    )
+    ).asComposeShader()
 }
 
 internal actual fun ActualSweepGradientShader(
@@ -79,7 +88,7 @@ internal actual fun ActualSweepGradientShader(
         center.y,
         makeTransparentColors(colors, numTransparentColors),
         makeTransparentStops(colorStops, colors, numTransparentColors),
-    )
+    ).asComposeShader()
 }
 
 internal actual fun ActualImageShader(
@@ -91,7 +100,7 @@ internal actual fun ActualImageShader(
         image.asAndroidBitmap(),
         tileModeX.toAndroidTileMode(),
         tileModeY.toAndroidTileMode(),
-    )
+    ).asComposeShader()
 }
 
 /**
@@ -213,22 +222,23 @@ internal actual class TransformShader {
             tmp = obtainMatrix().apply { setFrom(matrix) }
         }
         // TODO(b/419811019): Handle the chase where the shader already had a matrix set.
-        shader?.setLocalMatrix(tmp)
+        shader?.nativeShader?.setLocalMatrix(tmp)
     }
 
     actual var shader: Shader? = null
         set(value) {
             if (aMatrix != null) {
                 // TODO(b/419811019): Handle the chase where the shader already had a matrix set.
-                value?.setLocalMatrix(aMatrix)
+                value?.nativeShader?.setLocalMatrix(aMatrix)
             }
             field = value
         }
 }
 
-internal actual fun ActualCompositeShader(dst: Shader, src: Shader, blendMode: BlendMode): Shader =
+internal actual fun ActualCompositeShader(dst: Shader, src: Shader, blendMode: BlendMode): Shader = Shader(
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        ComposeShader(dst, src, blendMode.toAndroidBlendMode())
+        ComposeShader(dst.nativeShader, src.nativeShader, blendMode.toAndroidBlendMode())
     } else {
-        ComposeShader(dst, src, blendMode.toPorterDuffMode())
+        ComposeShader(dst.nativeShader, src.nativeShader, blendMode.toPorterDuffMode())
     }
+)

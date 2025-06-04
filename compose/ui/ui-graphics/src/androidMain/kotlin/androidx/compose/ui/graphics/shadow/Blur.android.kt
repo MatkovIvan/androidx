@@ -18,6 +18,7 @@ package androidx.compose.ui.graphics.shadow
 
 import android.graphics.BlurMaskFilter
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.asFrameworkPaint
 
 internal actual fun BlurFilter(radius: Float): BlurFilter =
     BlurMaskFilter(radius, BlurMaskFilter.Blur.NORMAL)

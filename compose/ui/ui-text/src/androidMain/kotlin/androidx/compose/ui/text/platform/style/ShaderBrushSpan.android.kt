@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.text.platform.style
 
-import android.graphics.Shader
 import android.text.TextPaint
 import android.text.style.CharacterStyle
 import android.text.style.UpdateAppearance
@@ -27,7 +26,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isUnspecified
+import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.nativeShader
 import androidx.compose.ui.text.platform.setAlpha
 
 /** A span that applies [ShaderBrush] to TextPaint after receiving a specified size */
@@ -46,6 +47,6 @@ internal class ShaderBrushSpan(val shaderBrush: ShaderBrush, val alpha: Float) :
 
     override fun updateDrawState(textPaint: TextPaint) {
         textPaint.setAlpha(alpha)
-        textPaint.shader = shaderState.value
+        textPaint.shader = shaderState.value?.nativeShader
     }
 }
