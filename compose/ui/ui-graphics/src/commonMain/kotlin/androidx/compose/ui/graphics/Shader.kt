@@ -22,7 +22,7 @@ import androidx.compose.ui.geometry.Offset
  * Class that represents the corresponding Shader implementation on a platform. This maps to
  * Gradients or ImageShaders
  */
-expect class Shader
+interface Shader
 
 /**
  * Class that applies the transform matrix to the corresponding Shader. This is useful for

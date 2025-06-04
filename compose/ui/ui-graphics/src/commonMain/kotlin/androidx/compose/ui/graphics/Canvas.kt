@@ -27,8 +27,6 @@ fun Canvas(image: ImageBitmap): Canvas = ActualCanvas(image)
 
 internal expect fun ActualCanvas(image: ImageBitmap): Canvas
 
-expect class NativeCanvas
-
 /**
  * Saves a copy of the current transform and clip on the save stack and executes the provided lambda
  * with the current transform applied. Once the lambda has been executed, the transformation is
@@ -145,9 +143,6 @@ fun Canvas.scale(sx: Float, sy: Float = sx, pivotX: Float, pivotY: Float) {
     scale(sx, sy)
     translate(-pivotX, -pivotY)
 }
-
-/** Return an instance of the native primitive that implements the Canvas interface */
-expect val Canvas.nativeCanvas: NativeCanvas
 
 @JvmDefaultWithCompatibility
 interface Canvas {

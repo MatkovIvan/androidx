@@ -19,13 +19,9 @@ package androidx.compose.ui.graphics
 /** Default alpha value used on [Paint]. This value will draw source content fully opaque. */
 const val DefaultAlpha: Float = 1.0f
 
-expect class NativePaint
-
 expect fun Paint(): Paint
 
 interface Paint {
-    fun asFrameworkPaint(): NativePaint
-
     /**
      * Configures the alpha value between 0f to 1f representing fully transparent to fully opaque
      * for the color drawn with this Paint
