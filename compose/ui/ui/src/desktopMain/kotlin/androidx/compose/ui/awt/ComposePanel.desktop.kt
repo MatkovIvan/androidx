@@ -31,12 +31,12 @@ import androidx.compose.ui.scene.ComposeContainer
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.savedstate.SavedState
-import java.awt.Color
 import java.awt.Component
 import java.awt.ComponentOrientation
 import java.awt.Container
 import java.awt.Dimension
 import java.awt.FocusTraversalPolicy
+import java.awt.Graphics
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.util.*
@@ -44,31 +44,20 @@ import javax.swing.JLayeredPane
 import javax.swing.SwingUtilities.isEventDispatchThread
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-import org.jetbrains.skiko.GraphicsApi
-import org.jetbrains.skiko.SkiaLayerAnalytics
 
 /**
  * ComposePanel is a panel for building UI using Compose for Desktop.
  *
- * @param skiaLayerAnalytics Analytics that helps to know more about SkiaLayer behaviour.
- * SkiaLayer is underlying class used internally to draw Compose content.
- * Implementation usually uses third-party solution to send info to some centralized analytics gatherer.
  * @param savedState The saved state to restore the UI state from a previous instance.
  * @param renderSettings Configuration class for rendering settings.
  * @param coroutineContext The coroutine context for Compose content rendering and effects.
  */
-class ComposePanel @ExperimentalComposeUiApi constructor(
-    private val skiaLayerAnalytics: SkiaLayerAnalytics = SkiaLayerAnalytics.Empty,
+class ComposePanel(
+    private val skiaAdapter: AwtSkiaAdapter,
     private var savedState: SavedState? = null,
     private val renderSettings: RenderSettings = DefaultRenderSettings,
     private val coroutineContext: CoroutineContext = EmptyCoroutineContext
 ) : JLayeredPane() {
-    constructor() : this(
-        savedState = null,
-        skiaLayerAnalytics = SkiaLayerAnalytics.Empty,
-        renderSettings = DefaultRenderSettings
-    )
-
     companion object {
         private val SwingGraphics = SwingGraphics()
 
@@ -121,8 +110,6 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         isFocusCycleRoot = true
         isFocusable = true
     }
-
-    private val _focusListeners = mutableSetOf<FocusListener?>()
 
     private var _composeContainer: ComposeContainer? = null
     private var _composeContent: (@Composable () -> Unit)? = null
@@ -215,12 +202,6 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         _composeContainer?.preferredSize ?: Dimension(0, 0)
     }
 
-    override fun setBackground(bg: Color?) {
-        // Note that unless `setOpaque(true)` is called, JLayeredPane will not paint the background
-        super.setBackground(bg)
-        _composeContainer?.contentComponent?.background = bg
-    }
-
     /**
      * Sets Compose content of the ComposePanel.
      *
@@ -301,21 +282,17 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     private fun createComposeContainer(): ComposeContainer {
         return ComposeContainer(
             container = this,
+            skiaAdapter = skiaAdapter,
             isWindowLevel = false,
-            skiaLayerAnalytics = skiaLayerAnalytics,
             savedState = savedState,
             windowContainer = windowContainer,
             renderSettings = renderSettings,
             coroutineContext = coroutineContext,
         ).apply {
             setBounds(0, 0, width, height)
-            contentComponent.isFocusable = isFocusable
-            contentComponent.isRequestFocusEnabled = isRequestFocusEnabled
-            contentComponent.background = background
             exceptionHandler = this@ComposePanel.exceptionHandler
 
-            _focusListeners.forEach(contentComponent::addFocusListener)
-            contentComponent.addFocusListener(object : FocusListener {
+            addFocusListener(object : FocusListener {
                 override fun focusGained(e: FocusEvent) {
                     if (!e.isTemporary && !e.isFocusGainedHandledBySwingPanel(this@ComposePanel)) {
                         when (e.cause) {
@@ -345,6 +322,10 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         super.removeNotify()
     }
 
+    override fun paint(g: Graphics?) {
+        _composeContainer?.paint()
+    }
+
     override fun setComponentOrientation(o: ComponentOrientation?) {
         super.setComponentOrientation(o)
 
@@ -357,81 +338,12 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         _composeContainer?.onLayoutDirectionChanged(this)
     }
 
-    override fun addFocusListener(l: FocusListener?) {
-        _composeContainer?.contentComponent?.addFocusListener(l)
-        _focusListeners.add(l)
-    }
-
-    override fun removeFocusListener(l: FocusListener?) {
-        _composeContainer?.contentComponent?.removeFocusListener(l)
-        _focusListeners.remove(l)
-    }
-
-    override fun setFocusable(focusable: Boolean) {
-        super.setFocusable(focusable)
-        _composeContainer?.contentComponent?.isFocusable = focusable
-    }
-
-    override fun setRequestFocusEnabled(requestFocusEnabled: Boolean) {
-        super.setRequestFocusEnabled(requestFocusEnabled)
-        _composeContainer?.contentComponent?.isRequestFocusEnabled = requestFocusEnabled
-    }
-
-    override fun hasFocus(): Boolean {
-        return _composeContainer?.contentComponent?.hasFocus() ?: false
-    }
-
-    override fun isFocusOwner(): Boolean {
-        return _composeContainer?.contentComponent?.isFocusOwner ?: false
-    }
-
-    override fun requestFocus() {
-        _composeContainer?.contentComponent?.requestFocus()
-    }
-
-    override fun requestFocus(temporary: Boolean): Boolean {
-        return _composeContainer?.contentComponent?.requestFocus(temporary) ?: false
-    }
-
-    override fun requestFocus(cause: FocusEvent.Cause?) {
-        _composeContainer?.contentComponent?.requestFocus(cause)
-    }
-
-    override fun requestFocusInWindow(): Boolean {
-        return _composeContainer?.contentComponent?.requestFocusInWindow() ?: false
-    }
-
-    override fun requestFocusInWindow(cause: FocusEvent.Cause?): Boolean {
-        return _composeContainer?.contentComponent?.requestFocusInWindow(cause) ?: false
-    }
-
     override fun setFocusTraversalKeysEnabled(focusTraversalKeysEnabled: Boolean) {
         // ignore, traversal keys should always be handled by ComposeContainer
     }
 
     override fun getFocusTraversalKeysEnabled(): Boolean {
         return false
-    }
-
-    /**
-     * Returns low-level rendering API used for rendering in this ComposeWindow. API is
-     * automatically selected based on operating system, graphical hardware and `SKIKO_RENDER_API`
-     * environment variable.
-     */
-    val renderApi: GraphicsApi
-        get() = _composeContainer?.renderApi ?: GraphicsApi.UNKNOWN
-
-    /**
-     * Renders the panel's content synchronously.
-     *
-     * This doesn't need to be used in most cases, as the content will be rendered as needed
-     * automatically. It can, however, be used to force the rendering sooner than it normally would
-     * occur. Specifically, it allows rendering the content after the window has been made
-     * displayable, but before it has been shown, to avoid a brief flicker.
-     */
-    @ExperimentalComposeUiApi
-    fun renderImmediately() {
-        _composeContainer?.renderImmediately()
     }
 
     /**

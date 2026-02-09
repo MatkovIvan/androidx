@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.window
+package androidx.compose.ui.awt
 
-import androidx.compose.runtime.Stable
-import java.awt.Window
+import androidx.compose.ui.InternalComposeUiApi
+import java.awt.Component
+import org.jetbrains.skia.Canvas
 
-/**
- * Receiver scope which is used by [androidx.compose.ui.window.Window] and
- * [androidx.compose.ui.window.DialogWindow].
- */
-@Stable
-interface WindowScope {
-    /**
-     * [Window] that was created inside [androidx.compose.ui.window.Window]
-     * or [androidx.compose.ui.window.DialogWindow]
-     */
-    val window: Window
+@InternalComposeUiApi
+interface AwtSkiaAdapter {
+    fun getSkiaCanvas(component: Component): Canvas
+    fun Canvas.drawComponent(component: Component)
 }

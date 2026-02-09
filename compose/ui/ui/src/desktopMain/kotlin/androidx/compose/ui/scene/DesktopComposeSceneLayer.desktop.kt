@@ -25,26 +25,21 @@ import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.toAwtRectangle
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.skiko.RecordDrawRectRenderDecorator
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.util.fastForEachReversed
 import java.awt.Rectangle
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import javax.swing.SwingUtilities
-import kotlin.math.max
 import org.jetbrains.skia.Canvas
-import org.jetbrains.skiko.SkikoRenderDelegate
 
 /**
  * Represents an abstract class for a desktop Compose scene layer.
  *
  * @see SwingComposeSceneLayer
- * @see WindowComposeSceneLayer
  */
 internal abstract class DesktopComposeSceneLayer(
     protected val composeContainer: ComposeContainer,
@@ -135,20 +130,6 @@ internal abstract class DesktopComposeSceneLayer(
     override fun calculateLocalPosition(positionInWindow: IntOffset) =
         positionInWindow // [ComposeScene] is equal to [windowContainer] for the layer.
 
-    protected fun recordDrawBounds(renderDelegate: SkikoRenderDelegate) =
-        RecordDrawRectRenderDecorator(renderDelegate) { canvasBoundsInPx ->
-            val currentCanvasOffset = drawBounds.topLeft
-            val drawBoundsInWindow = canvasBoundsInPx.roundToIntRect().translate(currentCanvasOffset)
-            maxDrawInflate = maxInflate(boundsInWindow, drawBoundsInWindow, maxDrawInflate)
-            drawBounds = IntRect(
-                left = boundsInWindow.left - maxDrawInflate.left,
-                top = boundsInWindow.top - maxDrawInflate.top,
-                right = boundsInWindow.right + maxDrawInflate.right,
-                bottom = boundsInWindow.bottom + maxDrawInflate.bottom
-            )
-            onDrawBoundsChanged()
-        }
-
     /**
      * Called when the focus of the window containing main Compose view has changed.
      */
@@ -171,12 +152,6 @@ internal abstract class DesktopComposeSceneLayer(
      * Called when the layers in [composeContainer] have changed.
      */
     open fun onLayersChange() {
-    }
-
-    /**
-     * Called when [drawBounds] has changed.
-     */
-    open fun onDrawBoundsChanged() {
     }
 
     /**
@@ -272,10 +247,3 @@ internal abstract class DesktopComposeSceneLayer(
         }
     }
 }
-
-private fun maxInflate(baseBounds: IntRect, currentBounds: IntRect, maxInflate: IntRect) = IntRect(
-    left = max(baseBounds.left - currentBounds.left, maxInflate.left),
-    top = max(baseBounds.top - currentBounds.top, maxInflate.top),
-    right = max(currentBounds.right - baseBounds.right, maxInflate.right),
-    bottom = max(currentBounds.bottom - baseBounds.bottom, maxInflate.bottom)
-)

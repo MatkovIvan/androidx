@@ -11,7 +11,6 @@ import org.jetbrains.skiko.MainUIDispatcher
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.hostOs
 import org.jetbrains.skiko.initializeCAccessible
-import androidx.compose.ui.scene.skia.SkiaLayerComponent
 
 /**
  * A helper class for requesting accessibility focus on a given accessible.

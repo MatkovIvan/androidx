@@ -23,14 +23,13 @@ import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
+import androidx.compose.ui.awt.AwtSkiaAdapter
 import androidx.compose.ui.awt.DebouncingEdtExecutor
 import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
-import androidx.compose.ui.awt.SwingInteropViewGroup
 import androidx.compose.ui.awt.isFocusGainedHandledBySwingPanel
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
@@ -59,7 +58,6 @@ import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.a11y.ComposeSceneAccessibility
-import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -76,8 +74,6 @@ import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.Point
 import java.awt.Toolkit
-import java.awt.event.ContainerEvent
-import java.awt.event.ContainerListener
 import java.awt.event.FocusEvent
 import java.awt.event.FocusEvent.Cause.TRAVERSAL
 import java.awt.event.FocusEvent.Cause.TRAVERSAL_BACKWARD
@@ -97,25 +93,16 @@ import javax.swing.SwingUtilities
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 import org.jetbrains.skia.Canvas
-import org.jetbrains.skiko.ClipRectangle
-import org.jetbrains.skiko.ExperimentalSkikoApi
-import org.jetbrains.skiko.GraphicsApi
-import org.jetbrains.skiko.SkikoRenderDelegate
+import org.jetbrains.skiko.currentNanoTime
 import org.jetbrains.skiko.hostOs
-import org.jetbrains.skiko.swing.SkiaSwingLayer
 
 /**
  * Provides a mediator for integrating a Compose scene with an AWT/Swing Component.
- * It allows setting Compose content by [setContent], this content should be drawn on [contentComponent].
- *
- * The mediator contains two Components that should be added to the view hierarchy:
- * [contentComponent]: the main visible Swing Component with skia canvas, on which Compose content
- * will be rendered.
- * [invisibleComponent]: a service component used to work around an AWT problem with refocusing
- * on input method change.
+ * It allows setting Compose content by [setContent], this content should be drawn on [container].
  */
 internal class ComposeSceneMediator(
     private val container: JComponent,
+    private val skiaAdapter: AwtSkiaAdapter,
     private val isWindowLevel: Boolean,
     private val windowContext: PlatformWindowContext,
     private var exceptionHandler: WindowExceptionHandler?,
@@ -129,12 +116,10 @@ internal class ComposeSceneMediator(
     private val architectureComponentsOwner: PlatformArchitectureComponentsOwner,
     val coroutineContext: CoroutineContext,
 
-    skiaLayerComponentFactory: (ComposeSceneMediator) -> SkiaLayerComponent,
     composeSceneFactory: (ComposeSceneMediator) -> ComposeScene,
-) : SkikoRenderDelegate {
+) {
     private var isDisposed = false
     private var isComponentAttached = false
-    private val invisibleComponent = InvisibleComponent()
 
     private val semanticsOwnerManager = DesktopSemanticsOwnerManager()
     var rootForTestListener: PlatformContext.RootForTestListener? by DelegateRootForTestListener()
@@ -151,37 +136,10 @@ internal class ComposeSceneMediator(
         platformComponent = platformComponent,
         coroutineContext = coroutineContext,
         isWindowLevel = isWindowLevel,
-        sceneRoot = { skiaLayerComponent.contentRoot },
+        sceneRoot = { container },
     )
 
-    private val skiaLayerComponent: SkiaLayerComponent by lazy { skiaLayerComponentFactory(this) }
-    val contentComponent by skiaLayerComponent::hierarchyRoot
-    var fullscreen by skiaLayerComponent::fullscreen
-    val windowHandle by skiaLayerComponent::windowHandle
-    val renderApi by skiaLayerComponent::renderApi
     val semanticsOwners: Collection<SemanticsOwner> by semanticsOwnerManager::semanticsOwners
-
-    /**
-     * @see ComposeFeatureFlags.useInteropBlending
-     */
-    private val useInteropBlending: Boolean
-        get() = ComposeFeatureFlags.useInteropBlending.value &&
-            skiaLayerComponent.interopBlendingSupported
-
-    /**
-     * Adding any components below [contentComponent] makes our bridge non-transparent on macOS.
-     * But as it draws always on top, so we can just add it as-is.
-     * TODO: Figure out why it makes difference in transparency
-     */
-    @OptIn(ExperimentalSkikoApi::class)
-    private val metalOrderHack
-        get() = renderApi == GraphicsApi.METAL && contentComponent !is SkiaSwingLayer
-
-    /**
-     * Whether to place interop components above non-interop components.
-     */
-    private val shouldPlaceInteropAbove: Boolean
-        get() = !useInteropBlending || metalOrderHack
 
     /**
      * A container that controls interop views/components. It is used to add and remove
@@ -189,51 +147,8 @@ internal class ComposeSceneMediator(
      */
     private val interopContainer = SwingInteropContainer(
         root = container,
-        placeInteropAbove = shouldPlaceInteropAbove,
-        requestRedraw = ::onComposeInvalidation
+        skiaAdapter = skiaAdapter,
     )
-
-    private val interopContainerListener = object : ContainerListener {
-        private val clipMap = mutableMapOf<SwingInteropViewGroup, ClipRectangle>()
-
-        override fun componentAdded(e: ContainerEvent) {
-            val component = e.child
-            if (component !is SwingInteropViewGroup) return
-
-            if (useInteropBlending) {
-                // In case of interop blending, compose might draw content above this [component].
-                // But due to implementation of [JLayeredPane]'s lightweight/heavyweight mixing
-                // logic, it doesn't send mouse events to parents or another layers.
-                // In case if [component] is placed above [contentComponent] (see addToLayer),
-                // subscribe to mouse events from interop views to handle such input.
-                component.subscribeToMouseEvents(mouseListener)
-            } else {
-                // Without interop blending, just add clip region to make proper
-                // "interop always on top" behaviour.
-                addClipComponent(component)
-            }
-        }
-
-        override fun componentRemoved(e: ContainerEvent) {
-            val component = e.child
-            if (component !is SwingInteropViewGroup) return
-
-            removeClipComponent(component)
-            component.unsubscribeFromMouseEvents(mouseListener)
-        }
-
-        private fun addClipComponent(component: SwingInteropViewGroup) {
-            val clipRectangle = interopContainer.getClipRectForComponent(component)
-            clipMap[component] = clipRectangle
-            skiaLayerComponent.clipComponents.add(clipRectangle)
-        }
-
-        private fun removeClipComponent(component: SwingInteropViewGroup) {
-            clipMap.remove(component)?.let {
-                skiaLayerComponent.clipComponents.remove(it)
-            }
-        }
-    }
     private val inputMethodListener = object : InputMethodListener {
         override fun caretPositionChanged(event: InputMethodEvent?) {
             if (isDisposed) return
@@ -310,16 +225,6 @@ internal class ComposeSceneMediator(
     var currentInputMethodRequests: InputMethodRequests? = null
         private set
 
-    /**
-     * The bounds of [scene] relative to [container]. Might be null if it's equal to [container]
-     * size.
-     *
-     * It makes sense in cases when real [container] size doesn't match desired value.
-     * For example, if we want to show a dialog in a separate window with the size of this
-     * dialog, but constrains (and scene size) should remain the size of the main window.
-     */
-    var sceneBoundsInPx: Rect? = null
-
     private var offsetInWindow = Point(0, 0)
         set(value) {
             if (field != value) {
@@ -388,26 +293,9 @@ internal class ComposeSceneMediator(
     var isClearFocusOnMouseDownEnabled: Boolean = ComposeUiFlags.isClearFocusOnMouseDownEnabled
 
     init {
-        // Transparency is used during redrawer creation that triggered by [addNotify], so
-        // it must be set to correct value before adding to the hierarchy to handle cases
-        // when [container] is already [isDisplayable].
-        skiaLayerComponent.transparency = useInteropBlending
-
-        container.add(invisibleComponent)
-        container.add(contentComponent)
-
-        // Because interopContainer.root == container, add a listener only after adding
-        // [invisibleComponent] and [contentComponent] to react only on changes with [interopLayer].
-        interopContainer.root.addContainerListener(interopContainerListener)
-        onRenderApiChanged {
-            interopContainer.placeInteropAbove = shouldPlaceInteropAbove
-        }
-
         // AwtDragAndDropManager support
         container.transferHandler = dragAndDropManager.transferHandler
         container.dropTarget = dragAndDropManager.dropTarget
-
-        contentComponent.focusTraversalKeysEnabled = false
 
         subscribeToInputEvents()
     }
@@ -421,14 +309,13 @@ internal class ComposeSceneMediator(
     }
 
     private fun resetFocus() {
-        if (contentComponent.isFocusOwner) {
-            invisibleComponent.requestFocusTemporary()
-            contentComponent.requestFocus()
+        if (container.isFocusOwner) {
+            container.requestFocus()
         }
     }
 
     private fun subscribeToInputEvents() {
-        with(contentComponent) {
+        with(container) {
             addInputMethodListener(inputMethodListener)
             addFocusListener(focusListener)
             addKeyListener(keyListener)
@@ -440,7 +327,7 @@ internal class ComposeSceneMediator(
     }
 
     private fun unsubscribeFromInputEvents() {
-        with(contentComponent) {
+        with(container) {
             removeInputMethodListener(inputMethodListener)
             removeFocusListener(focusListener)
             removeKeyListener(keyListener)
@@ -470,8 +357,7 @@ internal class ComposeSceneMediator(
     private val MouseEvent.position: Offset
         get() {
             val pointInContainer = SwingUtilities.convertPoint(component, point, container)
-            val offset = sceneBoundsInPx?.topLeft ?: Offset.Zero
-            return pointInContainer.asDpOffset().toOffset(contentComponent.density) - offset
+            return pointInContainer.asDpOffset().toOffset(container.density)
         }
 
     private fun onMouseEvent(event: MouseEvent): Unit = catchExceptions {
@@ -580,15 +466,10 @@ internal class ComposeSceneMediator(
 
         unsubscribeFromInputEvents()
 
-        container.remove(contentComponent)
-        container.remove(invisibleComponent)
         container.transferHandler = null
         container.dropTarget = null
 
         scene.close()
-        skiaLayerComponent.dispose()
-
-        interopContainer.root.removeContainerListener(interopContainerListener)
         // Since rendering will not happen after, we need to execute all scheduled updates
         interopContainer.dispose()
 
@@ -626,7 +507,7 @@ internal class ComposeSceneMediator(
 
     private var _onComponentAttached: (() -> Unit)? = null
     private fun runOnceComponentAttached(block: () -> Unit) {
-        if (contentComponent.isDisplayable) {
+        if (container.isDisplayable) {
             block()
         } else {
             _onComponentAttached = block
@@ -651,7 +532,7 @@ internal class ComposeSceneMediator(
     fun onComposeInvalidation() = composeInvalidationExecutor.runOrScheduleDebounced {
         catchExceptions {
             if (isDisposed) return@catchExceptions
-            skiaLayerComponent.onComposeInvalidation()
+            container.invalidate()
         }
     }
 
@@ -664,7 +545,7 @@ internal class ComposeSceneMediator(
     fun onContainerSizeChanged() = catchExceptions {
         if (!container.isDisplayable) return
 
-        val size = sceneBoundsInPx?.size ?: container.sizeInPx
+        val size = container.sizeInPx
         scene.size = IntSize(
             // container.sizeInPx can be negative
             width = size.width.coerceAtLeast(0f).roundToInt(),
@@ -683,43 +564,13 @@ internal class ComposeSceneMediator(
         }
     }
 
-    fun onWindowTransparencyChanged(value: Boolean) {
-        skiaLayerComponent.transparency = value || useInteropBlending
-    }
-
     fun onLayoutDirectionChanged(layoutDirection: LayoutDirection) {
         scene.layoutDirection = layoutDirection
     }
 
-    override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) = catchExceptions {
-        interopContainer.postponingExecutingScheduledUpdates {
-            canvas.withSceneOffset {
-                scene.render(asComposeCanvas(), nanoTime)
-            }
-        }
-    }
-
-    private inline fun Canvas.withSceneOffset(block: Canvas.() -> Unit) {
-        // Offset of scene relative to [container]
-        val sceneBoundsOffset = sceneBoundsInPx?.topLeft ?: Offset.Zero
-        // Offset of canvas relative to [container]
-        val contentOffset = with(contentComponent) {
-            val scale = density.density
-            Offset(x * scale, y * scale)
-        }
-        val sceneOffset = sceneBoundsOffset - contentOffset
-        save()
-        translate(sceneOffset.x, sceneOffset.y)
-        block()
-        restore()
-    }
-
-    fun onRenderApiChanged(action: () -> Unit) {
-        skiaLayerComponent.onRenderApiChanged(action)
-    }
-
-    fun renderImmediately() {
-        skiaLayerComponent.renderImmediately()
+    fun paint() = catchExceptions {
+        val canvas = skiaAdapter.getSkiaCanvas(container)
+        scene.render(canvas.asComposeCanvas(), currentNanoTime())
     }
 
     fun onWindowFocusChanged() {
@@ -732,16 +583,16 @@ internal class ComposeSceneMediator(
 
     private inner class DesktopFocusManager : FocusManager {
         override fun clearFocus(force: Boolean) {
-            val root = contentComponent.rootPane
+            val root = container.rootPane
             root?.focusTraversalPolicy?.getDefaultComponent(root)?.requestFocusInWindow()
         }
 
         override fun moveFocus(focusDirection: FocusDirection): Boolean =
             when (focusDirection) {
                 FocusDirection.Next -> {
-                    val toFocus = contentComponent.focusCycleRootAncestor?.let { root ->
+                    val toFocus = container.focusCycleRootAncestor?.let { root ->
                         val policy = root.focusTraversalPolicy
-                        policy.getComponentAfter(root, contentComponent)
+                        policy.getComponentAfter(root, container)
                             ?: policy.getDefaultComponent(root)
                     }
                     val hasFocus = toFocus?.hasFocus() == true
@@ -749,9 +600,9 @@ internal class ComposeSceneMediator(
                 }
 
                 FocusDirection.Previous -> {
-                    val toFocus = contentComponent.focusCycleRootAncestor?.let { root ->
+                    val toFocus = container.focusCycleRootAncestor?.let { root ->
                         val policy = root.focusTraversalPolicy
-                        policy.getComponentBefore(root, contentComponent)
+                        policy.getComponentBefore(root, container)
                             ?: policy.getDefaultComponent(root)
                     }
                     val hasFocus = toFocus?.hasFocus() == true
@@ -811,7 +662,7 @@ internal class ComposeSceneMediator(
         }
 
         override fun setPointerIcon(pointerIcon: PointerIcon) {
-            contentComponent.cursor =
+            container.cursor =
                 (pointerIcon as? AwtCursor)?.cursor ?: Cursor(Cursor.DEFAULT_CURSOR)
         }
         override val parentFocusManager: FocusManager = DesktopFocusManager()
@@ -822,7 +673,7 @@ internal class ComposeSceneMediator(
             //
             // if we return false - we don't allow changing the focus, and it breaks requesting
             // focus at start and in inactive mode
-            contentComponent.requestFocusInWindow()
+            container.requestFocusInWindow()
             return true
         }
 
@@ -838,15 +689,15 @@ internal class ComposeSceneMediator(
 
     private inner class DesktopPlatformComponent : PlatformComponent {
         override val locationOnScreen: Point
-            get() = contentComponent.locationOnScreen
+            get() = container.locationOnScreen
 
         override val density: Density
-            get() = contentComponent.density
+            get() = container.density
 
         override fun enableInput(inputMethodRequests: InputMethodRequests) {
             currentInputMethodRequests = inputMethodRequests
-            contentComponent.enableInputMethods(true)
-            contentComponent.inputContext.endComposition()
+            container.enableInputMethods(true)
+            container.inputContext.endComposition()
             // Without resetting the focus, Swing won't update the status (doesn't show/hide popup)
             // enableInputMethods is design to used per-Swing component level at init stage,
             // not dynamically
@@ -855,7 +706,7 @@ internal class ComposeSceneMediator(
 
         override fun disableInput() {
             currentInputMethodRequests = null
-            contentComponent.enableInputMethods(false)
+            container.enableInputMethods(false)
             // Without resetting the focus, Swing won't update the status (doesn't show/hide popup)
             // enableInputMethods is design to used per-Swing component level at init stage,
             // not dynamically
@@ -863,13 +714,7 @@ internal class ComposeSceneMediator(
         }
 
         override fun endComposition() {
-            contentComponent.inputContext.endComposition()
-        }
-    }
-
-    private class InvisibleComponent : Component() {
-        fun requestFocusTemporary(): Boolean {
-            return super.requestFocus(true)
+            container.inputContext.endComposition()
         }
     }
 }

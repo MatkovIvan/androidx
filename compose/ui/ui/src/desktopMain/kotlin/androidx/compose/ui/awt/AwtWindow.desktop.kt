@@ -21,8 +21,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.util.UpdateEffect
-import androidx.compose.ui.window.AwtWindow
-import androidx.compose.ui.window.Window
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

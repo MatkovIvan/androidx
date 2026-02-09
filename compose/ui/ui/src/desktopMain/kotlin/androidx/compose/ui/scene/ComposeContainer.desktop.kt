@@ -23,13 +23,12 @@ import androidx.compose.ui.LayerType
 import androidx.compose.ui.awt.AwtEventFilter
 import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
+import androidx.compose.ui.awt.AwtSkiaAdapter
 import androidx.compose.ui.awt.RenderSettings
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.DefaultArchitectureComponentsOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
-import androidx.compose.ui.scene.skia.SkiaLayerComponent
-import androidx.compose.ui.skiko.OverlayRenderDecorator
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastAll
@@ -61,7 +60,6 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.MainUIDispatcher
-import org.jetbrains.skiko.SkiaLayerAnalytics
 
 /**
  * Internal entry point to Compose.
@@ -71,7 +69,6 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  * @property container A container for the [ComposeScene].
  * @property isWindowLevel Whether the container is for the entire window (e.g.,
  * [androidx.compose.ui.awt.ComposeWindowPanel], not [androidx.compose.ui.awt.ComposePanel]).
- * @param skiaLayerAnalytics The analytics for the Skia layer.
  * @param window The window ancestor of the [container].
  * @param windowContainer A container used for additional layers and as a reference
  *  for window coordinate space.
@@ -81,8 +78,8 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  */
 internal class ComposeContainer(
     val container: JLayeredPane,
+    private val skiaAdapter: AwtSkiaAdapter,
     private val isWindowLevel: Boolean = false,
-    private val skiaLayerAnalytics: SkiaLayerAnalytics,
 
     window: Window? = null,
     windowContainer: JLayeredPane = container,
@@ -131,6 +128,7 @@ internal class ComposeContainer(
 
     private val mediator = ComposeSceneMediator(
         container = container,
+        skiaAdapter = skiaAdapter,
         isWindowLevel = isWindowLevel,
         windowContext = windowContext,
         exceptionHandler = {
@@ -142,7 +140,6 @@ internal class ComposeContainer(
         ),
         architectureComponentsOwner = architectureComponentsOwner,
         coroutineContext = coroutineContext + MainUIDispatcher + DesktopCoroutineExceptionHandler(),
-        skiaLayerComponentFactory = ::createSkiaLayerComponent,
         composeSceneFactory = ::createComposeScene,
     )
 
@@ -165,16 +162,10 @@ internal class ComposeContainer(
         override fun componentMoved(e: ComponentEvent?) = onWindowPositionChanged()
     }
 
-    val contentComponent by mediator::contentComponent
     val focusManager by mediator::focusManager
     var rootForTestListener by mediator::rootForTestListener
-    // TODO: Changing fullscreen probably will require recreate our layers
-    //  It will require add this flag as remember parameters in rememberComposeSceneLayer
-    var fullscreen by mediator::fullscreen
     var compositionLocalContext by mediator::compositionLocalContext
     var exceptionHandler: WindowExceptionHandler? = null
-    val windowHandle by mediator::windowHandle
-    val renderApi by mediator::renderApi
     val preferredSize by mediator::preferredSize
     val semanticsOwners by mediator::semanticsOwners
 
@@ -284,21 +275,12 @@ internal class ComposeContainer(
 
     fun onWindowTransparencyChanged(value: Boolean) {
         windowContext.isWindowTransparent = value
-        mediator.onWindowTransparencyChanged(value)
     }
 
     fun onLayoutDirectionChanged(component: Component) {
         // ComposeWindow and ComposeDialog relies on self orientation, not on container's one
         layoutDirection = layoutDirectionFor(component)
         mediator.onLayoutDirectionChanged(layoutDirection)
-    }
-
-    fun onRenderApiChanged(action: () -> Unit) {
-        mediator.onRenderApiChanged(action)
-    }
-
-    fun renderImmediately() {
-        mediator.renderImmediately()
     }
 
     fun addNotify() {
@@ -320,8 +302,12 @@ internal class ComposeContainer(
         setWindow(null)
     }
 
+    fun paint() {
+        mediator.paint()
+    }
+
     fun setBounds(x: Int, y: Int, width: Int, height: Int) {
-        mediator.contentComponent.setSize(width, height)
+        container.setSize(width, height)
 
         // In case of preferred size there is no separate event for changing window size,
         // so re-checking the actual size on container resize too.
@@ -363,21 +349,6 @@ internal class ComposeContainer(
         mediator.setContent(content)
     }
 
-    private fun createSkiaLayerComponent(mediator: ComposeSceneMediator): SkiaLayerComponent {
-        val renderDelegate = when (layerType) {
-            // Use overlay decorator to allow window layers draw scrim on the main window
-            LayerType.OnWindow -> OverlayRenderDecorator(mediator, ::onRenderOverlay)
-            else -> mediator
-        }
-        return SkiaLayerComponent(
-            mediator = mediator,
-            windowContext = windowContext,
-            renderDelegate = renderDelegate,
-            skiaLayerAnalytics = skiaLayerAnalytics,
-            renderSettings = renderSettings
-        )
-    }
-
     private fun createComposeScene(mediator: ComposeSceneMediator): ComposeScene {
         val density = container.density
         return when (layerType) {
@@ -408,19 +379,9 @@ internal class ComposeContainer(
         compositionContext: CompositionContext
     ): ComposeSceneLayer {
         return when (layerType) {
-            LayerType.OnWindow -> WindowComposeSceneLayer(
-                composeContainer = this,
-                skiaLayerAnalytics = skiaLayerAnalytics,
-                transparent = true, // TODO: Consider allowing opaque window layers
-                density = density,
-                layoutDirection = layoutDirection,
-                focusable = focusable,
-                compositionContext = compositionContext,
-                renderSettings = renderSettings
-            )
             LayerType.OnComponent -> SwingComposeSceneLayer(
                 composeContainer = this,
-                skiaLayerAnalytics = skiaLayerAnalytics,
+                skiaAdapter = skiaAdapter,
                 density = density,
                 layoutDirection = layoutDirection,
                 focusable = focusable,

@@ -24,8 +24,7 @@ import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.awt.isFocusGainedHandledBySwingPanel
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.MeasurePolicy
@@ -78,11 +77,11 @@ internal class SwingInteropViewHolder<T : Component>(
         platformModifier = Modifier
             .pointerInteropFilter(this)
             .drawBehind {
-                // Clear interop area to make visible the component under our canvas.
-                drawRect(
-                    color = Color.Transparent,
-                    blendMode = BlendMode.Clear
-                )
+                drawIntoCanvas { canvas ->
+                    with(container) {
+                        draw(this@SwingInteropViewHolder, canvas)
+                    }
+                }
             }
     }
 

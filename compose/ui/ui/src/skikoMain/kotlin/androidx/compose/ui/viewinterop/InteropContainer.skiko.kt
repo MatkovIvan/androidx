@@ -20,6 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.OverlayLayout
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
@@ -60,6 +62,8 @@ internal interface InteropContainer {
      * Issues a request to remove the interop view from the hierarchy.
      */
     fun unplace(holder: InteropViewHolder)
+
+    fun DrawScope.draw(holder: InteropViewHolder, canvas: Canvas)
 
     /**
      * Schedule an update to be performed on interop view. Platforms have their different strategy

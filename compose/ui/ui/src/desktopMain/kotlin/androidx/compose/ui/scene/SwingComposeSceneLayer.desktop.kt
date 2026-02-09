@@ -17,17 +17,14 @@
 package androidx.compose.ui.scene
 
 import androidx.compose.runtime.CompositionContext
+import androidx.compose.ui.awt.AwtSkiaAdapter
 import androidx.compose.ui.awt.toAwtColor
 import androidx.compose.ui.awt.toAwtRectangle
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.scene.skia.SkiaLayerComponent
-import androidx.compose.ui.scene.skia.SwingSkiaLayerComponent
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.roundToIntRect
-import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.sizeInPx
 import java.awt.Dimension
@@ -35,11 +32,10 @@ import java.awt.Graphics
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.JLayeredPane
-import org.jetbrains.skiko.SkiaLayerAnalytics
 
 internal class SwingComposeSceneLayer(
     composeContainer: ComposeContainer,
-    private val skiaLayerAnalytics: SkiaLayerAnalytics,
+    private val skiaAdapter: AwtSkiaAdapter,
     density: Density,
     layoutDirection: LayoutDirection,
     focusable: Boolean,
@@ -57,7 +53,7 @@ internal class SwingComposeSceneLayer(
             updateBounds()
 
             if (focusable) {
-                mediator?.contentComponent?.requestFocusInWindow()
+                requestFocusInWindow()
             }
         }
 
@@ -73,7 +69,7 @@ internal class SwingComposeSceneLayer(
             }
 
             // Draw content after the background
-            super.paint(g)
+            mediator?.paint()
         }
 
         override fun toString() = "SwingComposeSceneLayer container"
@@ -90,7 +86,7 @@ internal class SwingComposeSceneLayer(
         set(value) {
             if (field == value) return
             field = value
-            mediator?.contentComponent?.isFocusable = value
+            container.isFocusable = value
             updateBounds()
         }
 
@@ -101,6 +97,7 @@ internal class SwingComposeSceneLayer(
         drawBounds = boundsInPx.roundToIntRect()
         mediator = ComposeSceneMediator(
             container = container,
+            skiaAdapter = skiaAdapter,
             isWindowLevel = false,
             windowContext = composeContainer.windowContext,
             exceptionHandler = {
@@ -110,12 +107,9 @@ internal class SwingComposeSceneLayer(
             measureDrawLayerBounds = true,
             architectureComponentsOwner = composeContainer.architectureComponentsOwner,
             coroutineContext = compositionContext.effectCoroutineContext,
-            skiaLayerComponentFactory = ::createSkiaLayerComponent,
             composeSceneFactory = ::createComposeScene,
-        ).also {
-            it.onWindowTransparencyChanged(true)
-            it.contentComponent.isFocusable = focusable
-        }
+        )
+        container.isFocusable = focusable
 
         // TODO: Currently it works only with offscreen rendering
         // TODO: Do not clip this from main scene if layersContainer == main container
@@ -139,41 +133,19 @@ internal class SwingComposeSceneLayer(
         updateBounds()
     }
 
-    override fun onDrawBoundsChanged() {
-        updateBounds()
-    }
-
     // Updates the bounds of the container and the content component.
     private fun updateBounds() {
         if (!isBoundsInWindowSet) {
             container.setBounds(0, 0, windowContainer.width, windowContainer.height)
-            mediator?.contentComponent?.setBounds(0, 0, container.width, container.height)
         } else {
-            val contentComponent = mediator?.contentComponent ?: return
             val localDrawBounds = drawBounds.toAwtRectangle(density)
 
             if (focusable) {
                 container.setBounds(0, 0, windowContainer.width, windowContainer.height)
-                contentComponent.bounds = localDrawBounds
-                mediator?.sceneBoundsInPx = null
             } else {
                 container.bounds = localDrawBounds
-                contentComponent.setBounds(0, 0, localDrawBounds.width, localDrawBounds.height)
-                mediator?.sceneBoundsInPx = Rect(
-                    offset = -drawBounds.topLeft.toOffset(),
-                    size = windowContainer.sizeInPx
-                )
             }
         }
-    }
-
-    private fun createSkiaLayerComponent(mediator: ComposeSceneMediator): SkiaLayerComponent {
-        val renderDelegate = recordDrawBounds(mediator)
-        return SwingSkiaLayerComponent(
-            mediator = mediator,
-            renderDelegate = renderDelegate,
-            skiaLayerAnalytics = skiaLayerAnalytics
-        )
     }
 
     private fun createComposeScene(mediator: ComposeSceneMediator): ComposeScene {

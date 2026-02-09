@@ -17,13 +17,11 @@
 package androidx.compose.ui.window
 
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.awt.ComposeDialog
 import androidx.compose.ui.awt.ComposePanel
-import androidx.compose.ui.awt.ComposeWindow
 import java.awt.Window
 
 /**
- * Window-owner of the current composition (for example, [ComposeWindow] or [ComposeDialog]).
+ * Window-owner of the current composition.
  * If the composition is not inside Window (for example, [ComposePanel]), then return null
  */
 internal val LocalWindow = compositionLocalOf<Window?> { null }
