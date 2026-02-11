@@ -469,11 +469,11 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                             kotlinCompile.compilerOptions {
                                 jvmTarget.set(defaultJvmTargetForNonAndroidTargets)
                                 // Set jdk-release version for non-Android KMP targets
-                                freeCompilerArgs.add(
-                                    defaultTargetVersionForNonAndroidTargets.map {
-                                        "-Xjdk-release=$it"
-                                    }
-                                )
+//                                freeCompilerArgs.add(
+//                                    defaultTargetVersionForNonAndroidTargets.map {
+//                                        "-Xjdk-release=$it"
+//                                    }
+//                                )
                             }
                         }
                     }

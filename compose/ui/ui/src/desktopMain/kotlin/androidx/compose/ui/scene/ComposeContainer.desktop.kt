@@ -43,6 +43,7 @@ import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.enableSavedStateHandles
 import androidx.savedstate.SavedState
 import java.awt.Component
+import java.awt.Graphics
 import java.awt.Window
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
@@ -302,13 +303,11 @@ internal class ComposeContainer(
         setWindow(null)
     }
 
-    fun paint() {
-        mediator.paint()
+    fun paint(g: Graphics) {
+        mediator.paint(g)
     }
 
     fun setBounds(x: Int, y: Int, width: Int, height: Int) {
-        container.setSize(width, height)
-
         // In case of preferred size there is no separate event for changing window size,
         // so re-checking the actual size on container resize too.
         onWindowContainerSizeChanged()

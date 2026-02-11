@@ -31,16 +31,19 @@ import androidx.compose.ui.scene.ComposeContainer
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.savedstate.SavedState
+import java.awt.Color
 import java.awt.Component
 import java.awt.ComponentOrientation
 import java.awt.Container
 import java.awt.Dimension
 import java.awt.FocusTraversalPolicy
+import java.awt.Font
 import java.awt.Graphics
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.util.*
 import javax.swing.JLayeredPane
+import javax.swing.SwingUtilities
 import javax.swing.SwingUtilities.isEventDispatchThread
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -322,8 +325,20 @@ class ComposePanel(
         super.removeNotify()
     }
 
-    override fun paint(g: Graphics?) {
-        _composeContainer?.paint()
+    override fun paint(g: Graphics) {
+
+
+        g.color = Color.BLACK
+        g.font = Font("SansSerif", Font.PLAIN, 24)
+        g.drawString("The text is rendered via Java2D (before Compose)", 18, 36)
+
+        _composeContainer?.paint(g)
+
+        g.color = Color.BLACK
+        g.font = Font("SansSerif", Font.PLAIN, 24)
+        g.drawString("The text is rendered via Java2D (after Compose)", 18, height - 20)
+
+//        repaint()
     }
 
     override fun setComponentOrientation(o: ComponentOrientation?) {

@@ -72,6 +72,7 @@ import androidx.compose.ui.window.sizeInPx
 import java.awt.Component
 import java.awt.Cursor
 import java.awt.Dimension
+import java.awt.Graphics
 import java.awt.Point
 import java.awt.Toolkit
 import java.awt.event.FocusEvent
@@ -532,7 +533,8 @@ internal class ComposeSceneMediator(
     fun onComposeInvalidation() = composeInvalidationExecutor.runOrScheduleDebounced {
         catchExceptions {
             if (isDisposed) return@catchExceptions
-            container.invalidate()
+//            container.invalidate()
+//            container.repaint()
         }
     }
 
@@ -568,9 +570,12 @@ internal class ComposeSceneMediator(
         scene.layoutDirection = layoutDirection
     }
 
-    fun paint() = catchExceptions {
-        val canvas = skiaAdapter.getSkiaCanvas(container)
-        scene.render(canvas.asComposeCanvas(), currentNanoTime())
+    fun paint(g: Graphics) = catchExceptions {
+        with(skiaAdapter) {
+            g.withSkiaCanvas(container.width, container.height) {
+                scene.render(it.asComposeCanvas(), currentNanoTime())
+            }
+        }
     }
 
     fun onWindowFocusChanged() {

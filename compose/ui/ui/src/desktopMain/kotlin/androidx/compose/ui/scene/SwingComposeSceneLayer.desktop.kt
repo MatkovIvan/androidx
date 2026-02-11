@@ -69,7 +69,7 @@ internal class SwingComposeSceneLayer(
             }
 
             // Draw content after the background
-            mediator?.paint()
+            mediator?.paint(g)
         }
 
         override fun toString() = "SwingComposeSceneLayer container"

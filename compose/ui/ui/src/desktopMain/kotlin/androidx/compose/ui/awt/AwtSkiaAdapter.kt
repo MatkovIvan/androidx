@@ -18,10 +18,17 @@ package androidx.compose.ui.awt
 
 import androidx.compose.ui.InternalComposeUiApi
 import java.awt.Component
+import java.awt.Graphics
+import java.awt.Graphics2D
 import org.jetbrains.skia.Canvas
 
 @InternalComposeUiApi
 interface AwtSkiaAdapter {
-    fun getSkiaCanvas(component: Component): Canvas
+    fun Graphics.withSkiaCanvas(
+        width: Int,
+        height: Int,
+        block: (Canvas) -> Unit
+    )
+
     fun Canvas.drawComponent(component: Component)
 }
