@@ -104,6 +104,7 @@ import org.jetbrains.skiko.SkikoRenderDelegate
 import org.jetbrains.skiko.hostOs
 import org.jetbrains.skiko.swing.SkiaSwingLayer
 
+
 /**
  * Provides a mediator for integrating a Compose scene with an AWT/Swing Component.
  * It allows setting Compose content by [setContent], this content should be drawn on [contentComponent].
@@ -358,6 +359,7 @@ internal class ComposeSceneMediator(
     val preferredSize: Dimension
         get() {
             val contentSize = scene.calculateContentSize()
+            println("contentSize = $contentSize")
             val scale = scene.density.density
             return Dimension(
                 (contentSize.width / scale).toInt(),
@@ -410,6 +412,15 @@ internal class ComposeSceneMediator(
         contentComponent.focusTraversalKeysEnabled = false
 
         subscribeToInputEvents()
+
+//        RepaintManager.setCurrentManager(object : RepaintManager() {
+//            override fun validateInvalidComponents() {
+//                if (scene.hasInvalidations()) {
+//                    scene.onFrame(System.nanoTime())
+//                }
+//                super.validateInvalidComponents()
+//            }
+//        })
     }
 
     private inline fun catchExceptions(block: () -> Unit) {
@@ -648,10 +659,28 @@ internal class ComposeSceneMediator(
         }
     }
 
+    private var scheduledComposition = false
+    fun scheduleComposition() {
+        if (scheduledComposition) return
+
+        scheduledComposition = true
+        SwingUtilities.invokeLater {
+            if(scene.hasInvalidations()) {
+                println("scene.onFrame")
+                scene.onFrame(System.nanoTime())
+
+                container.revalidate()
+                skiaLayerComponent.onComposeInvalidation() // To run draw
+            }
+            scheduledComposition = false
+        }
+    }
+
+
     fun onComposeInvalidation() = composeInvalidationExecutor.runOrScheduleDebounced {
         catchExceptions {
             if (isDisposed) return@catchExceptions
-            skiaLayerComponent.onComposeInvalidation()
+            scheduleComposition()
         }
     }
 
@@ -691,10 +720,16 @@ internal class ComposeSceneMediator(
         scene.layoutDirection = layoutDirection
     }
 
+    fun measureAndLayout() {
+        println("scene.measureAndLayout")
+        scene.measureAndLayout()
+    }
+
     override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) = catchExceptions {
         interopContainer.postponingExecutingScheduledUpdates {
             canvas.withSceneOffset {
-                scene.render(asComposeCanvas(), nanoTime)
+                println("scene.draw")
+                scene.draw(asComposeCanvas())
             }
         }
     }

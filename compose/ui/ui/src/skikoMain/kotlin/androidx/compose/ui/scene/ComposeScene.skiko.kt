@@ -175,11 +175,19 @@ sealed interface ComposeScene : AutoCloseable {
      */
     fun setContent(content: @Composable () -> Unit)
 
+    fun onFrame(frameTimeNanos: Long)
+    fun measureAndLayout()
+    fun draw(canvas: Canvas)
+
     /**
      * Render the current content on [canvas]. Passed [nanoTime] will be used to drive all
      * animations in the content (or any other code, which uses [withFrameNanos]
      */
-    fun render(canvas: Canvas, nanoTime: Long)
+    fun render(canvas: Canvas, nanoTime: Long) {
+        onFrame(nanoTime)
+        measureAndLayout()
+        draw(canvas)
+    }
 
     /**
      * Send pointer event to the content.

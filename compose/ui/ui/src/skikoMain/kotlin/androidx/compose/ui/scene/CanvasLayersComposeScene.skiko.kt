@@ -266,11 +266,12 @@ private class CanvasLayersComposeSceneImpl(
     override fun processRotaryScrollEvent(event: RotaryScrollEvent): Boolean =
         focusedLayer?.onRotaryEvent(event) ?: mainOwner.onRotaryEvent(event)
 
-    override fun measureAndLayout() {
+    override fun doMeasureAndLayout() {
+        snapshotInvalidationTracker.onMeasureAndLayout()
         forEachOwner { it.measureAndLayout() }
     }
 
-    override fun draw(canvas: Canvas) {
+    override fun doDraw(canvas: Canvas) {
         forEachOwner { it.draw(canvas) }
     }
 

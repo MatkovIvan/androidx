@@ -320,6 +320,10 @@ internal class ComposeContainer(
         setWindow(null)
     }
 
+    fun measureAndLayout() {
+        mediator.measureAndLayout()
+    }
+
     fun setBounds(x: Int, y: Int, width: Int, height: Int) {
         mediator.contentComponent.setSize(width, height)
 

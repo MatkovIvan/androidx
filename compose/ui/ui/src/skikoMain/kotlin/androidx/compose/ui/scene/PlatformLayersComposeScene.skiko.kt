@@ -185,11 +185,12 @@ private class PlatformLayersComposeSceneImpl(
     override fun processRotaryScrollEvent(event: RotaryScrollEvent): Boolean =
         mainOwner.onRotaryEvent(event)
 
-    override fun measureAndLayout() {
+    override fun doMeasureAndLayout() {
+        snapshotInvalidationTracker.onMeasureAndLayout()
         mainOwner.measureAndLayout()
     }
 
-    override fun draw(canvas: Canvas) {
+    override fun doDraw(canvas: Canvas) {
         mainOwner.draw(canvas)
     }
 

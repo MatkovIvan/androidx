@@ -85,6 +85,7 @@ internal abstract class BaseComposeScene(
     private var isInvalidationDisabled = false
     private inline fun <T> postponeInvalidation(traceTag: String, crossinline block: () -> T): T = trace(traceTag) {
         check(!isClosed) { "postponeInvalidation called after ComposeScene is closed" }
+        if (isInvalidationDisabled) return block()
         isInvalidationDisabled = true
         return try {
             // Try to get see the up-to-date state before running block
@@ -158,6 +159,43 @@ internal abstract class BaseComposeScene(
             recomposer.performScheduledRecomposerTasks()
         }
 
+    override fun onFrame(frameTimeNanos: Long) = postponeInvalidation("BaseComposeScene:onFrame") {
+        // Flush composition effects (e.g. LaunchedEffect, coroutines launched in
+        // rememberCoroutineScope()) before everything else
+        recomposer.performScheduledEffects()
+
+        recomposer.performScheduledRecomposerTasks()
+        frameClock.sendFrame(frameTimeNanos) // withFrameMillis/Nanos and recomposition
+    }
+
+    override fun measureAndLayout() = postponeInvalidation("BaseComposeScene:measureAndLayout") {
+        // We try to run the phases here in the same order Android does.
+
+        doMeasureAndLayout()  // Layout
+
+        // Schedule synthetic events to be sent after `render` completes
+        if (inputHandler.needUpdatePointerPosition) {
+            recomposer.scheduleAsEffect { updatePointerPosition() }
+        }
+
+        // Between layout and draw, Android's Choreographer flushes the main dispatcher.
+        // We can't do quite that, but an important side effect of that is that the
+        // GlobalSnapshotManager gets to run and call `Snapshot.sendApplyNotifications()`, which
+        // we can (and must) do.
+        Snapshot.sendApplyNotifications()
+    }
+
+    override fun draw(canvas: Canvas) = postponeInvalidation("BaseComposeScene:draw") {
+        // The drawing phase.
+        // Android calls these two before drawing (AndroidComposeView.dispatchDraw)
+        doMeasureAndLayout()
+        Snapshot.sendApplyNotifications()
+
+        // Actually draw
+        snapshotInvalidationTracker.onDraw()
+        doDraw(canvas)
+    }
+
     override fun render(canvas: Canvas, nanoTime: Long) {
         // This is a no-op if the scene is closed, this situation can happen if the scene is
         // in the list for rendering, but recomposition in another scene from the same list
@@ -166,35 +204,8 @@ internal abstract class BaseComposeScene(
         if (isClosed) return
 
         postponeInvalidation("BaseComposeScene:render") {
-            // We try to run the phases here in the same order Android does.
-
-            // Flush composition effects (e.g. LaunchedEffect, coroutines launched in
-            // rememberCoroutineScope()) before everything else
-            recomposer.performScheduledEffects()
-
-            recomposer.performScheduledRecomposerTasks()
-            frameClock.sendFrame(nanoTime) // withFrameMillis/Nanos and recomposition
-
-            doMeasureAndLayout()  // Layout
-
-            // Schedule synthetic events to be sent after `render` completes
-            if (inputHandler.needUpdatePointerPosition) {
-                recomposer.scheduleAsEffect { updatePointerPosition() }
-            }
-
-            // Between layout and draw, Android's Choreographer flushes the main dispatcher.
-            // We can't do quite that, but an important side effect of that is that the
-            // GlobalSnapshotManager gets to run and call `Snapshot.sendApplyNotifications()`, which
-            // we can (and must) do.
-            Snapshot.sendApplyNotifications()
-
-            // The drawing phase.
-            // Android calls these two before drawing (AndroidComposeView.dispatchDraw)
-            doMeasureAndLayout()
-            Snapshot.sendApplyNotifications()
-
-            // Actually draw
-            snapshotInvalidationTracker.onDraw()
+            onFrame(nanoTime)
+            measureAndLayout()
             draw(canvas)
         }
     }
@@ -287,11 +298,6 @@ internal abstract class BaseComposeScene(
         }
     }
 
-    protected fun doMeasureAndLayout() {
-        snapshotInvalidationTracker.onMeasureAndLayout()
-        measureAndLayout()
-    }
-
     protected abstract fun createComposition(content: @Composable () -> Unit): Composition
 
     private fun onPointerInputEvent(event: PointerInputEvent) = processPointerInputEvent(event)
@@ -314,9 +320,9 @@ internal abstract class BaseComposeScene(
 
     protected abstract fun processRotaryScrollEvent(event: RotaryScrollEvent): Boolean
 
-    protected abstract fun measureAndLayout()
+    protected abstract fun doMeasureAndLayout()
 
-    protected abstract fun draw(canvas: Canvas)
+    protected abstract fun doDraw(canvas: Canvas)
 }
 
 internal val BaseComposeScene.semanticsOwnerListener

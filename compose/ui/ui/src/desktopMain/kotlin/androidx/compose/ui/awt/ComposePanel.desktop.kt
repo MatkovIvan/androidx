@@ -345,6 +345,11 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         super.removeNotify()
     }
 
+    override fun doLayout() {
+        _composeContainer?.measureAndLayout()
+        super.doLayout()
+    }
+
     override fun setComponentOrientation(o: ComponentOrientation?) {
         super.setComponentOrientation(o)
 
